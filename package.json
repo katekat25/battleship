@@ -1,0 +1,23 @@
+{
+  "name": "battleship",
+  "version": "1.0.0",
+  "description": "A interactive browser version of the game Battleship.",
+  "main": "ship.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/katekat25/battleship.git",
+    "test": "jest"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/katekat25/battleship/issues"
+  },
+  "homepage": "https://github.com/katekat25/battleship#readme",
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}
