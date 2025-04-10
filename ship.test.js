@@ -12,6 +12,7 @@ test('Hit() increases number of hits on ship', () => {
 
 test('isSunk() reports sinkage accurately', () => {
     const ship = new Ship(4);
+    expect(ship.isSunk()).toBeFalsy();
     ship.hit();
     ship.hit();
     ship.hit();

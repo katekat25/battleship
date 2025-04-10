@@ -5,6 +5,8 @@ class Square {
         this.x = x;
         this.y = y;
         this.ship = ship;
+        this.hasMiss = false;
+        this.hasHit = false;
     }
 }
 
@@ -16,6 +18,7 @@ class Gameboard {
             Array.from({ length: height }, (_, y) => new Square(x, y))
         );
         this.shipList = [];
+        this.allSunk = false;
     }
 
     #validateCoordinates(startX, startY, endX, endY, isHorizontal) {
@@ -56,8 +59,8 @@ class Gameboard {
             [startY, endY] = [endY, startY];
         }
 
-        if (isHorizontal && (endX - startX + 1) != length 
-        || isVertical && (endY - startY + 1) != length) {
+        if (isHorizontal && (endX - startX + 1) != length
+            || isVertical && (endY - startY + 1) != length) {
             throw new Error("Error: length differs from coordinates.")
         }
 
@@ -71,7 +74,9 @@ class Gameboard {
         })
     }
 
-
+    isAllSunk() {
+        return this.shipList.every((ship) => ship.isSunk() === true);
+    }
 }
 
 export { Gameboard }
