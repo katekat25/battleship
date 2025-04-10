@@ -58,7 +58,7 @@ class Gameboard {
 
         if (isHorizontal && (endX - startX + 1) != length 
         || isVertical && (endY - startY + 1) != length) {
-            throw new Error("Error: length exceeds coordinates.")
+            throw new Error("Error: length differs from coordinates.")
         }
 
         const coordinates = this.#validateCoordinates(startX, startY, endX, endY, isHorizontal);
