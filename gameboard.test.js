@@ -24,16 +24,20 @@ test('Gameboard places ships at correct location', () => {
     expect(() => game.placeShip(3, 20, 0, 22, 0)).toThrow();
 });
 
-// test('Gameboard tracks missed attacks accurately', () => {
-
-// })
+test('Gameboard tracks missed attacks accurately', () => {
+    let game = new Gameboard();
+    game.placeShip(1, 0, 0, 0, 0);
+    game.placeShip(1, 3, 3, 3, 3);
+    game.receiveAttack(1, 1);
+    expect(game.grid[1][1].hasMiss).toBeTruthy();
+})
 
 test('Gameboard reports if all ships have been sunk', () => {
     let game = new Gameboard();
     game.placeShip(1, 0, 0, 0, 0);
     game.placeShip(1, 3, 3, 3, 3);
-    game.grid[0][0].ship.hit();
+    game.receiveAttack(0, 0);
     expect(game.isAllSunk()).toBeFalsy();
-    game.grid[3][3].ship.hit();
+    game.receiveAttack(3, 3);
     expect(game.isAllSunk()).toBeTruthy();
 })

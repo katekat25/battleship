@@ -6,7 +6,6 @@ class Square {
         this.y = y;
         this.ship = ship;
         this.hasMiss = false;
-        this.hasHit = false;
     }
 }
 
@@ -72,6 +71,20 @@ class Gameboard {
         coordinates.forEach(([x, y]) => {
             this.grid[x][y].ship = newShip;
         })
+    }
+
+    receiveAttack(x, y) {
+        if (x >= 0 && y >= 0 && x < this.width && y < this.height) {
+            //is there a ship there?
+            if (this.grid[x][y].ship != null) {
+                //is that ship already sunken?
+                if (this.grid[x][y].ship.isSunk() == false) {
+                    this.grid[x][y].ship.hit();
+                } else throw new Error("Error: Ship has already been sunk.")
+            } else {
+                this.grid[x][y].hasMiss = true;
+            }
+        } else throw new Error("Error: Invalid coordinates for attack.");
     }
 
     isAllSunk() {
