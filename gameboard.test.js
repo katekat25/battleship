@@ -15,4 +15,8 @@ test('Gameboard places ships at correct location', () => {
     expect(game.grid[4][0].ship).toBeNull();
 
     expect(() => game.placeShip(1, 0, 0, 0, 0)).toThrow();
+
+    expect(() => game.placeShip(11, 8, 8, 8, 8)).toThrow();
+
+    expect(() => game.placeShip(3, 1, 1, 2, 2)).toThrow();
 })

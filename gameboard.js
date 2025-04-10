@@ -56,6 +56,11 @@ class Gameboard {
             [startY, endY] = [endY, startY];
         }
 
+        if (isHorizontal && (endX - startX + 1) != length 
+        || isVertical && (endY - startY + 1) != length) {
+            throw new Error("Error: length exceeds coordinates.")
+        }
+
         const coordinates = this.#validateCoordinates(startX, startY, endX, endY, isHorizontal);
 
         //After validating, create and place the new ship
