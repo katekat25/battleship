@@ -1,0 +1,12 @@
+.gameboard-container {
+    height: 600px;
+    width: 600px;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.cell {
+    box-sizing: border-box;
+    background-color: red;
+    border: 1px solid black;
+}

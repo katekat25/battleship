@@ -2,7 +2,7 @@
   "name": "battleship",
   "version": "1.0.0",
   "description": "A interactive browser version of the game Battleship.",
-  "main": "ship.js",
+  "main": "battleship.js",
   "scripts": {
     "test": "jest"
   },
