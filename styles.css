@@ -12,10 +12,11 @@
     width: 500px;
     display: flex;
     flex-wrap: wrap;
+    flex-shrink: 0;
 }
 
 .cell {
     box-sizing: border-box;
-    background-color: red;
+    /* background-color: red; */
     border: 1px solid black;
 }

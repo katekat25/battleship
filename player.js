@@ -1,8 +1,10 @@
 import { Gameboard } from "./gameboard.js";
 
 class Player {
-    constructor(gameboard) {
-        this.gameboard = gameboard;
+    constructor(name, htmlTag, board) {
+        this.name = name;
+        this.htmlTag = htmlTag;
+        this.board = board;
     }
 }
 
