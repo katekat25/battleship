@@ -10,7 +10,8 @@ class Square {
 }
 
 class Gameboard {
-    constructor(height = 10, width = 10) {
+    constructor(owner, height = 10, width = 10) {
+        this.owner = owner;
         this.height = height;
         this.width = width;
         this.grid = Array.from({ length: width }, (_, x) =>
@@ -18,6 +19,7 @@ class Gameboard {
         );
         this.shipList = [];
         this.allSunk = false;
+        this.maxShipCount = 10;
     }
 
     #validateCoordinates(startX, startY, endX, endY, isHorizontal) {
@@ -40,7 +42,15 @@ class Gameboard {
     }
 
     isValidPlacement(x, y) {
-        return x >= 0 && y >= 0 && x < this.width && y < this.height && this.grid[x][y].ship == null;
+        if (x >= 0 && y >= 0 && x < this.width && y < this.height && this.grid[x][y].ship == null) {
+            return true;
+        } else throw new Error('Invalid placement.');
+    }
+
+    isValidAttack(x, y) {
+        if (x >= 0 && y >= 0 && x < this.width && y < this.height && this.grid[x][y].hasHit == false) {
+            return true;
+        } else throw new Error('Invalid attack.')
     }
 
     placeShip(length, startX, startY, endX, endY) {
@@ -74,19 +84,19 @@ class Gameboard {
     }
 
     receiveAttack(x, y) {
-        if (x >= 0 && y >= 0 && x < this.width && y < this.height) {
-            if (this.grid[x][y].hasHit === true) {
-                throw new Error("Error: Attack has already been placed at this square.");
-            }
-            this.grid[x][y].hasHit = true;
-            //is there a ship there?
-            if (this.grid[x][y].ship != null) {
-                //is that ship already sunken?
-                if (this.grid[x][y].ship.isSunk() == false) {
-                    this.grid[x][y].ship.hit();
-                } else throw new Error("Error: Ship has already been sunk.")
-            }
-        } else throw new Error("Error: Invalid coordinates for attack.");
+        console.log(this.grid[x][y].hasHit);
+        if (this.grid[x][y].hasHit === true) {
+            throw new Error("Error: Attack has already been placed at this square.");
+        }
+        //is there a ship there?
+        if (this.grid[x][y].ship != null) {
+            //is that ship already sunken?
+            if (this.grid[x][y].ship.isSunk() == false) {
+                this.grid[x][y].ship.hit();
+            } else throw new Error("Error: Ship has already been sunk.")
+        }
+        this.grid[x][y].hasHit = true;
+        console.log(this.grid[x][y].hasHit);
     }
 
     isAllSunk() {

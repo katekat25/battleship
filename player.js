@@ -1,11 +1,13 @@
-import { Gameboard } from "./gameboard.js";
-
 class Player {
-    constructor(name, htmlTag, board) {
+    constructor(name, htmlTag, board = null) {
         this.name = name;
         this.htmlTag = htmlTag;
         this.board = board;
     }
+
+    // placeShip() {
+
+    // }
 }
 
 export { Player }
