@@ -55,7 +55,9 @@ function newGame(player1, player2, renderer = null) {
                 throw new Error('Attack is not valid.');
             }
             if (attackedPlayer.board.isAllSunk()) {
-                this.setMessage("Game over!");
+                console.log("Game ending")
+                this.endGame(attackedPlayer);
+                return;
             }
             this.roundCount++;
             this.swapActivePlayer();
@@ -66,6 +68,13 @@ function newGame(player1, player2, renderer = null) {
             let messageBox = document.querySelector(".notifications");
             messageBox.innerHTML = '';
             messageBox.textContent = message;
+        },
+
+        endGame(loser) {
+            console.log("in endGame");
+            this.setMessage(`Game over! All of ${loser.name}'s ships have been sunk.`);
+            let gameboardContainer = document.querySelector(".gameboard-container");
+            gameboardContainer.style.pointerEvents = "none";
         }
     };
 }
