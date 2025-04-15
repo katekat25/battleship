@@ -4,7 +4,7 @@ function newGame(player1, player2, renderer = null) {
         player2: player2,
         activePlayer: player1,
         renderer: renderer,
-        roundCount: 0,
+        roundCount: 1,
         swapActivePlayer: function () {
             if (this.activePlayer === this.player1) {
                 this.activePlayer = this.player2;
@@ -39,21 +39,33 @@ function newGame(player1, player2, renderer = null) {
 
             renderer.drawGameboard(player1);
             renderer.drawGameboard(player2);
+
+            this.setMessage(`Turn ${this.roundCount}: ${this.activePlayer.name}'s turn.`);
         },
 
         handleAttack(x, y, attackedPlayer) {
             if (attackedPlayer == this.activePlayer) {
+                this.setMessage("Cannot attack own board.");
                 throw new Error('Cannot attack own board.');
             }
             if (attackedPlayer.board.isValidAttack(x, y)) {
-                console.log("attack is valid");
                 attackedPlayer.board.receiveAttack(x, y);
-            } else throw new Error('Attack is not valid.');
+            } else {
+                this.setMessage("Attack is not valid.");
+                throw new Error('Attack is not valid.');
+            }
             if (attackedPlayer.board.isAllSunk()) {
-                console.log("End the game!");
+                this.setMessage("Game over!");
             }
             this.roundCount++;
             this.swapActivePlayer();
+            this.setMessage(`Turn ${this.roundCount}: ${this.activePlayer.name}'s turn.`);
+        },
+
+        setMessage(message) {
+            let messageBox = document.querySelector(".notifications");
+            messageBox.innerHTML = '';
+            messageBox.textContent = message;
         }
     };
 }
