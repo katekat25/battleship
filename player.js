@@ -4,10 +4,6 @@ class Player {
         this.htmlTag = htmlTag;
         this.board = board;
     }
-
-    // placeShip() {
-
-    // }
 }
 
 export { Player }
