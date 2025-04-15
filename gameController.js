@@ -49,6 +49,7 @@ function newGame(player1, player2, renderer = null) {
                 throw new Error('Cannot attack own board.');
             }
             if (attackedPlayer.board.isValidAttack(x, y)) {
+                console.log("Going to receiveAttack.");
                 attackedPlayer.board.receiveAttack(x, y);
             } else {
                 this.setMessage("Attack is not valid.");
@@ -59,9 +60,22 @@ function newGame(player1, player2, renderer = null) {
                 this.endGame(attackedPlayer);
                 return;
             }
+        },
+
+        playTurn: async function (x, y, attackedPlayer) {
+            this.handleAttack(x, y, attackedPlayer);
             this.roundCount++;
             this.swapActivePlayer();
             this.setMessage(`Turn ${this.roundCount}: ${this.activePlayer.name}'s turn.`);
+            if (this.activePlayer.name === "CPU") {
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                this.makeCPUMove()
+                // console.log("Moving on from setTimeout.");
+                this.renderer.drawGameboard(player1);
+                this.roundCount++;
+                this.swapActivePlayer();
+                this.setMessage(`Turn ${this.roundCount}: ${this.activePlayer.name}'s turn.`);
+            }
         },
 
         setMessage(message) {
@@ -73,8 +87,15 @@ function newGame(player1, player2, renderer = null) {
         endGame(loser) {
             console.log("in endGame");
             this.setMessage(`Game over! All of ${loser.name}'s ships have been sunk.`);
-            let gameboardContainer = document.querySelector(".gameboard-container");
-            gameboardContainer.style.pointerEvents = "none";
+        },
+
+        makeCPUMove() {
+            console.log("Making CPU move.");
+            let x = Math.floor(Math.random() * 10);
+            let y = Math.floor(Math.random() * 10);
+            if (player1.board.isValidAttack(x, y)) {
+                this.handleAttack(x, y, player1);
+            } else this.makeCPUMove();
         }
     };
 }

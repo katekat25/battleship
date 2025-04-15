@@ -28,7 +28,7 @@ function createRenderer() {
                 }
                 gameboard.appendChild(cell);
                 cell.addEventListener("click", (e) => {
-                    game.handleAttack(y, x, player);
+                    game.playTurn(y, x, player);
                     drawGameboard(player);
                 });
             }
