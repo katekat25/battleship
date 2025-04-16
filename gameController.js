@@ -1,4 +1,5 @@
 import { Ship } from "./ship.js";
+import { CPU } from "./player.js";
 
 function newGame(player1, player2, renderer = null) {
     const game = {
@@ -35,39 +36,37 @@ function newGame(player1, player2, renderer = null) {
             }
         },
 
+        processAttack(attacker, defender, x, y) {
+            attacker.handleAttack(x, y, defender);
+            attacker.renderer.drawGameboard(defender);
+            if (defender.board.isAllSunk()) {
+                attacker.renderer.endGame(defender);
+                return true;
+            }
+            return false;
+        },
+
         async playTurn(x, y, attackedPlayer) {
-            if (this.activePlayer.name === "CPU") {
+            const attacker = this.activePlayer;
+            const defender = attacker === this.player1 ? this.player2 : this.player1;
+        
+            if (attacker instanceof CPU) {
                 this.renderer.setMessage(`Turn ${this.turnCount}: Thinking...`);
                 await new Promise(resolve => setTimeout(resolve, 1000));
-                this.makeCPUMove(); // CPU attacks player1
-                this.renderer.drawGameboard(this.player1); // Draw player1's board
-                if (this.player1.board.isAllSunk()) {
-                    this.renderer.endGame(this.player1);
-                    return;
-                }
+                const [cpuX, cpuY] = attacker.getRandomValidAttackCoordinates(defender.board);
+                if (this.processAttack(this, defender, cpuX, cpuY)) return;
             } else {
-                this.handleAttack(x, y, attackedPlayer); // Human attacks CPU
-                this.renderer.drawGameboard(attackedPlayer); // Draw CPU's board
-                if (attackedPlayer.board.isAllSunk()) {
-                    this.renderer.endGame(attackedPlayer);
-                    return;
-                }
+                if (this.processAttack(this, attackedPlayer, x, y)) return;
             }
-
+        
             this.turnCount++;
             this.swapActivePlayer();
             this.renderer.setMessage(`Turn ${this.turnCount}: ${this.activePlayer.name}'s turn.`);
-
-            // Trigger CPU's turn again if it's now the CPU's turn
-            if (this.activePlayer.name === "CPU") {
+        
+            if (this.activePlayer instanceof CPU) {
                 await this.playTurn(null, null, this.player1);
             }
         },
-
-        makeCPUMove() {
-            const [x, y] = getRandomValidAttackCoordinates(this.player1.board);
-            this.handleAttack(x, y, this.player1);
-        }
     };
 
     // Helper function to get valid coordinates for ship placement
@@ -97,16 +96,6 @@ function newGame(player1, player2, renderer = null) {
                 board.placeShip(ship, x, y);
             }
         });
-    }
-
-    // Helper function to get random valid attack coordinates
-    function getRandomValidAttackCoordinates(board) {
-        let x, y;
-        do {
-            x = Math.floor(Math.random() * board.width);
-            y = Math.floor(Math.random() * board.height);
-        } while (!board.isValidAttack(x, y));
-        return [x, y];
     }
 
     return game;

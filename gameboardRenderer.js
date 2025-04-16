@@ -1,3 +1,5 @@
+import { Player, CPU } from "./player.js";
+
 function createRenderer() {
     let game = null;
 
@@ -15,7 +17,7 @@ function createRenderer() {
                 cell.className = "cell";
                 cell.style.width = (500 / player.board.width) + "px";
                 cell.style.height = (500 / player.board.height) + "px";
-                if (player.name !== "CPU") {
+                if (!(player instanceof CPU)) {
                     if (square.ship !== null && square.hasHit == false) {
                         cell.style.backgroundColor = "blue";
                     }

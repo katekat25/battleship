@@ -8,13 +8,20 @@ class Player {
 
 class CPU extends Player {
     constructor(name, htmlTag, board = null) {
-        super(name);
-        super(htmlTag);
-        super(board);
+        super(name, htmlTag, board);
+    }
+    
+    getRandomValidAttackCoordinates(board) {
+        let x, y;
+        do {
+            x = Math.floor(Math.random() * board.width);
+            y = Math.floor(Math.random() * board.height);
+        } while (!board.isValidAttack(x, y));
+        return [x, y];
     }
 
-    placeRandomShips() {
-        
+    checkSurroundingSquares() {
+
     }
 }
 

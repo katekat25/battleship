@@ -56,7 +56,8 @@ class Gameboard {
     }
 
     isValidAttack(x, y) {
-        return this.#isInBounds(x, y) && this.grid[x][y].hasHit === false;
+        if (!this.#isInBounds(x, y)) return false;
+        return this.grid[x][y].hasHit === false;
     }
 
     #setBufferZone(startX, startY, endX, endY, isHorizontal) {
