@@ -6,4 +6,16 @@ class Player {
     }
 }
 
-export { Player }
+class CPU extends Player {
+    constructor(name, htmlTag, board = null) {
+        super(name);
+        super(htmlTag);
+        super(board);
+    }
+
+    placeRandomShips() {
+        
+    }
+}
+
+export { Player, CPU }

@@ -1,15 +1,35 @@
+import { Ship } from "./ship.js";
+
 function newGame(player1, player2, renderer = null) {
+    function getValidCoordinates(board, shipLength, isHorizontal) {
+        let x, y;
+        do {
+            x = Math.floor(Math.random() * (isHorizontal ? board.width - shipLength + 1 : board.width));
+            y = Math.floor(Math.random() * (isHorizontal ? board.height : board.height - shipLength + 1));
+        } while (!board.isValidPlacement(x, y, shipLength, isHorizontal));
+        return [x, y];
+    }
+
+    function getRandomBoolean() {
+        return Math.random() < 0.5;
+    }
+
     function placeDefaultShips(board) {
-        board.placeShip(4, 0, 0, 3, 0);
-        board.placeShip(3, 5, 9, 7, 9);
-        board.placeShip(2, 5, 0, 6, 0);
-        board.placeShip(2, 2, 5, 2, 6);
-        board.placeShip(2, 0, 5, 0, 6);
-        board.placeShip(1, 4, 6, 4, 6);
-        board.placeShip(1, 9, 0, 9, 0);
-        board.placeShip(1, 8, 4, 8, 4);
-        board.placeShip(1, 7, 7, 7, 7);
-        board.placeShip(3, 3, 3, 5, 3);
+        const shipConfigs = [
+            { length: 1, count: 4 },
+            { length: 2, count: 3 },
+            { length: 3, count: 2 },
+            { length: 4, count: 1 }
+        ];
+    
+        shipConfigs.forEach(({ length, count }) => {
+            for (let i = 0; i < count; i++) {
+                const isHorizontal = Math.random() < 0.5;
+                const [x, y] = getValidCoordinates(board, length, isHorizontal);
+                const ship = new Ship(length, isHorizontal);
+                board.placeShip(ship, x, y);
+            }
+        });
     }
 
     return {

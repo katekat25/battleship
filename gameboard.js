@@ -22,7 +22,7 @@ class Gameboard {
         this.maxShipCount = 10;
     }
 
-    #validateCoordinates(startX, startY, endX, endY, isHorizontal) {
+    validateCoordinates(startX, startY, endX, endY, isHorizontal) {
         const coordinates = [];
         const start = isHorizontal ? startX : startY;
         const end = isHorizontal ? endX : endY;
@@ -41,64 +41,58 @@ class Gameboard {
         return coordinates;
     }
 
-    isValidPlacement(x, y) {
-        if (x >= 0 && y >= 0 && x < this.width && y < this.height && this.grid[x][y].ship == null) {
-            return true;
-        } else return false;
-        //this was throw new Error before, will this cause problems? hee hee hee
+    #isInBounds(x, y) {
+        return x >= 0 && y >= 0 && x < this.width && y < this.height;
+    }
+
+    isValidPlacement(x, y, length = 1, isHorizontal = true) {
+        for (let i = 0; i < length; i++) {
+            const newX = isHorizontal ? x + i : x;
+            const newY = isHorizontal ? y : y + i;
+            if (!this.#isInBounds(newX, newY) || this.grid[newX][newY].ship !== null) {
+                return false;
+            }
+        }
+        return true;
     }
 
     isValidAttack(x, y) {
-        if (x >= 0 && y >= 0 && x < this.width && y < this.height && this.grid[x][y].hasHit == false) {
-            return true;
-        } else return false;
-        //this was throw new Error before, will this cause problems? hee hee hee
+        return this.#isInBounds(x, y) && this.grid[x][y].hasHit === false;
     }
 
-    placeShip(length, startX, startY, endX, endY) {
-        //Check if horizontal or vertical
-        const isHorizontal = startY === endY;
-        const isVertical = startX === endX;
-        if (!isHorizontal && !isVertical) {
-            throw new Error("Error: invalid placement.");
+    placeShip(ship, startX, startY) {
+        console.log("In placeShip.");
+        let endX, endY;
+
+        if (ship.isHorizontal) {
+            endX = startX + ship.length - 1;
+            endY = startY;
+        } else {
+            endX = startX;
+            endY = startY + ship.length - 1;
         }
 
-        //If starting coordinate is greater than end coordinate, flip them
-        if (isHorizontal && startX > endX) {
-            [startX, endX] = [endX, startX];
-        } else if (isVertical && startY > endY) {
-            [startY, endY] = [endY, startY];
-        }
+        const coordinates = this.validateCoordinates(startX, startY, endX, endY, ship.isHorizontal);
 
-        if (isHorizontal && (endX - startX + 1) != length
-            || isVertical && (endY - startY + 1) != length) {
-            throw new Error("Error: length differs from coordinates.")
-        }
-
-        const coordinates = this.#validateCoordinates(startX, startY, endX, endY, isHorizontal);
-
-        //After validating, create and place the new ship
-        const newShip = new Ship(length);
-        this.shipList.push(newShip);
+        this.shipList.push(ship);
         coordinates.forEach(([x, y]) => {
-            this.grid[x][y].ship = newShip;
+            this.grid[x][y].ship = ship;
         })
     }
 
     receiveAttack(x, y) {
-        // console.log(this.grid[x][y].hasHit);
-        if (this.grid[x][y].hasHit === true) {
+        let square = this.grid[x][y];
+        if (square.hasHit === true) {
             throw new Error("Error: Attack has already been placed at this square.");
         }
         //is there a ship there?
-        if (this.grid[x][y].ship != null) {
+        if (square.ship != null) {
             //is that ship already sunken?
-            if (this.grid[x][y].ship.isSunk() == false) {
-                this.grid[x][y].ship.hit();
+            if (!square.ship.isSunk()) {
+                square.ship.hit();
             } else throw new Error("Error: Ship has already been sunk.")
         }
-        this.grid[x][y].hasHit = true;
-        // console.log(this.grid[x][y].hasHit);
+        square.hasHit = true;
     }
 
     isAllSunk() {
