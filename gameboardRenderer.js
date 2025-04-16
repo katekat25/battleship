@@ -14,8 +14,14 @@ function createRenderer() {
 
     function endGame(loser) {
         setMessage(`Game over! All of ${loser.name}'s ships have been sunk.`);
-        document.querySelector(".gameboard-container").style.pointerEvents = "none";
     }
+
+    function toggleBoardClicking() {
+        const boardContainer = document.querySelector(".gameboard-container");
+        const isDisabled = boardContainer.style.pointerEvents === "none";
+    
+        boardContainer.style.pointerEvents = isDisabled ? "auto" : "none";
+    }    
 
     function createCell(square, player, x, y) {
         const cell = document.createElement("div");
@@ -64,7 +70,7 @@ function createRenderer() {
         }
     }
 
-    return { setGame, drawGameboard, setMessage, endGame }
+    return { setGame, drawGameboard, setMessage, endGame, toggleBoardClicking }
 }
 
 

@@ -1,5 +1,3 @@
-//bug to fix: if player clicks too soon before CPU turn is complete, things get messed up!
-
 import { Ship } from "./ship.js";
 import { CPU } from "./player.js";
 
@@ -10,6 +8,7 @@ function newGame(player1, player2, renderer = null) {
         activePlayer: player1,
         renderer,
         turnCount: 1,
+        isBusy: false,
 
         swapActivePlayer() {
             this.activePlayer = this.activePlayer === this.player1 ? this.player2 : this.player1;
@@ -27,56 +26,73 @@ function newGame(player1, player2, renderer = null) {
 
         processAttack(attacker, defender, x, y) {
             console.log("Handling attack at (" + x + ", " + y + ")");
-        
+
             if (defender === attacker) {
                 this.renderer.setMessage("Cannot attack own board.");
                 throw new Error("Cannot attack own board.");
             }
-        
+
             if (!defender.board.isValidAttack(x, y)) {
                 this.renderer.setMessage("Attack is not valid.");
                 throw new Error("Attack is not valid.");
             }
-        
+
             defender.board.receiveAttack(x, y);
-        
+
             if (attacker instanceof CPU) {
                 console.log("CPU last attacked: " + [x, y]);
                 attacker.lastAttackCoords[0] = [x, y];
             }
-        
+
             this.renderer.drawGameboard(defender);
-        
+
             if (defender.board.isAllSunk()) {
                 this.renderer.endGame(defender);
                 return true;
             }
-        
+
             return false;
         },
-        
+
         async playTurn(x, y, defender) {
+            if (this.isBusy) return; // Prevent overlapping turns
+            this.isBusy = true;
+        
             const attacker = this.activePlayer;
         
             if (attacker instanceof CPU) {
-                console.log("CPU attacking.");
+                this.renderer.toggleBoardClicking();
                 this.renderer.setMessage(`Turn ${this.turnCount}: Thinking...`);
                 const coords = await attacker.cpuTurn(defender);
-                console.log("CPU attacking at:", coords);
-                if (this.processAttack(attacker, defender, coords[0], coords[1])) return;
+        
+                if (this.processAttack(attacker, defender, coords[0], coords[1])) {
+                    this.isBusy = false;
+                    return;
+                }
+                this.renderer.toggleBoardClicking();
             } else {
-                if (this.processAttack(attacker, defender, x, y)) return;
+                try {
+                    if (this.processAttack(attacker, defender, x, y)) {
+                        this.isBusy = false;
+                        return;
+                    }
+                } catch (err) {
+                    this.isBusy = false;
+                    return;
+                }
             }
         
             this.turnCount++;
             this.swapActivePlayer();
             this.renderer.setMessage(`Turn ${this.turnCount}: ${this.activePlayer.name}'s turn.`);
         
-            // Auto-play if the next player is CPU
+            this.isBusy = false;
+        
             if (this.activePlayer instanceof CPU) {
                 await this.playTurn(null, null, this.player1);
             }
-        }         
+        }        
+        
     };
 
     function getValidCoordinates(board, shipLength, isHorizontal) {
