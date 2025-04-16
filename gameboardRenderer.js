@@ -1,4 +1,4 @@
-import { Player, CPU } from "./player.js";
+import { CPU } from "./player.js";
 
 function createRenderer() {
     let game = null;
@@ -7,46 +7,61 @@ function createRenderer() {
         game = g;
     }
 
-    function drawGameboard(player) {
-        const gameboard = document.querySelector(`.${player.htmlTag}`);
-        gameboard.innerHTML = '';
-        for (let x = player.board.width - 1; x >= 0; x--) {
-            for (let y = 0; y < player.board.height; y++) {
-                const square = player.board.grid[y][x];
-                let cell = document.createElement("div");
-                cell.className = "cell";
-                cell.style.width = (500 / player.board.width) + "px";
-                cell.style.height = (500 / player.board.height) + "px";
-                if (!(player instanceof CPU)) {
-                    if (square.ship !== null && square.hasHit == false) {
-                        cell.style.backgroundColor = "blue";
-                    }
-                } else cell.style.backgroundColor = "lightgrey";
-                if (square.ship == undefined && square.hasHit == true) {
-                    cell.style.backgroundColor = "lightpink";
-                }
-                if (square.ship !== null && square.hasHit == true) {
-                    cell.style.backgroundColor = "red";
-                }
-                gameboard.appendChild(cell);
-                cell.addEventListener("click", (e) => {
-                    game.playTurn(y, x, player);
-                });
-            }
-        }
-    }
-
     function setMessage(message) {
-        let messageBox = document.querySelector(".notifications");
-        messageBox.innerHTML = '';
+        const messageBox = document.querySelector(".notifications");
         messageBox.textContent = message;
     }
 
     function endGame(loser) {
-        // console.log("in endGame");
-       setMessage(`Game over! All of ${loser.name}'s ships have been sunk.`);
-        let gameboardContainer = document.querySelector(".gameboard-container");
-        gameboardContainer.style.pointerEvents("none");
+        setMessage(`Game over! All of ${loser.name}'s ships have been sunk.`);
+        document.querySelector(".gameboard-container").style.pointerEvents = "none";
+    }
+
+    function createCell(square, player, x, y) {
+        const cell = document.createElement("div");
+        cell.className = "cell";
+        const cellSize = 500 / player.board.width;
+        cell.style.width = `${cellSize}px`;
+        cell.style.height = `${cellSize}px`;
+
+        // CPU board (hidden ships)
+        if (player instanceof CPU) {
+            cell.style.backgroundColor = "lightgrey";
+        }
+
+        // Ship present and not hit
+        else if (square.ship && !square.hasHit) {
+            cell.style.backgroundColor = "blue";
+        }
+
+        // Miss
+        if (!square.ship && square.hasHit) {
+            cell.style.backgroundColor = "lightpink";
+        }
+
+        // Hit
+        if (square.ship && square.hasHit) {
+            cell.style.backgroundColor = "red";
+        }
+
+        cell.addEventListener("click", () => {
+            game.playTurn(y, x, player);
+        });
+
+        return cell;
+    }
+
+    function drawGameboard(player) {
+        const gameboard = document.querySelector(`.${player.htmlTag}`);
+        gameboard.innerHTML = '';
+
+        for (let x = player.board.width - 1; x >= 0; x--) {
+            for (let y = 0; y < player.board.height; y++) {
+                const square = player.board.grid[y][x];
+                const cell = createCell(square, player, x, y);
+                gameboard.appendChild(cell);
+            }
+        }
     }
 
     return { setGame, drawGameboard, setMessage, endGame }

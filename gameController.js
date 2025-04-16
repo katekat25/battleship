@@ -1,3 +1,5 @@
+//bug to fix: if player clicks too soon before CPU turn is complete, things get messed up!
+
 import { Ship } from "./ship.js";
 import { CPU } from "./player.js";
 
@@ -23,53 +25,60 @@ function newGame(player1, player2, renderer = null) {
             this.renderer.setMessage(`Turn ${this.turnCount}: ${this.activePlayer.name}'s turn.`);
         },
 
-        handleAttack(x, y, attackedPlayer) {
-            if (attackedPlayer === this.activePlayer) {
-                this.renderer.setMessage("Cannot attack own board.");
-                throw new Error('Cannot attack own board.');
-            }
-            if (attackedPlayer.board.isValidAttack(x, y)) {
-                attackedPlayer.board.receiveAttack(x, y);
-            } else {
-                this.renderer.setMessage("Attack is not valid.");
-                throw new Error('Attack is not valid.');
-            }
-        },
-
         processAttack(attacker, defender, x, y) {
-            attacker.handleAttack(x, y, defender);
-            attacker.renderer.drawGameboard(defender);
-            if (defender.board.isAllSunk()) {
-                attacker.renderer.endGame(defender);
-                return true;
+            console.log("Handling attack at (" + x + ", " + y + ")");
+        
+            if (defender === attacker) {
+                this.renderer.setMessage("Cannot attack own board.");
+                throw new Error("Cannot attack own board.");
             }
-            return false;
-        },
-
-        async playTurn(x, y, attackedPlayer) {
-            const attacker = this.activePlayer;
-            const defender = attacker === this.player1 ? this.player2 : this.player1;
+        
+            if (!defender.board.isValidAttack(x, y)) {
+                this.renderer.setMessage("Attack is not valid.");
+                throw new Error("Attack is not valid.");
+            }
+        
+            defender.board.receiveAttack(x, y);
         
             if (attacker instanceof CPU) {
+                console.log("CPU last attacked: " + [x, y]);
+                attacker.lastAttackCoords[0] = [x, y];
+            }
+        
+            this.renderer.drawGameboard(defender);
+        
+            if (defender.board.isAllSunk()) {
+                this.renderer.endGame(defender);
+                return true;
+            }
+        
+            return false;
+        },
+        
+        async playTurn(x, y, defender) {
+            const attacker = this.activePlayer;
+        
+            if (attacker instanceof CPU) {
+                console.log("CPU attacking.");
                 this.renderer.setMessage(`Turn ${this.turnCount}: Thinking...`);
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                const [cpuX, cpuY] = attacker.getRandomValidAttackCoordinates(defender.board);
-                if (this.processAttack(this, defender, cpuX, cpuY)) return;
+                const coords = await attacker.cpuTurn(defender);
+                console.log("CPU attacking at:", coords);
+                if (this.processAttack(attacker, defender, coords[0], coords[1])) return;
             } else {
-                if (this.processAttack(this, attackedPlayer, x, y)) return;
+                if (this.processAttack(attacker, defender, x, y)) return;
             }
         
             this.turnCount++;
             this.swapActivePlayer();
             this.renderer.setMessage(`Turn ${this.turnCount}: ${this.activePlayer.name}'s turn.`);
         
+            // Auto-play if the next player is CPU
             if (this.activePlayer instanceof CPU) {
                 await this.playTurn(null, null, this.player1);
             }
-        },
+        }         
     };
 
-    // Helper function to get valid coordinates for ship placement
     function getValidCoordinates(board, shipLength, isHorizontal) {
         let x, y;
         do {
@@ -79,7 +88,6 @@ function newGame(player1, player2, renderer = null) {
         return [x, y];
     }
 
-    // Helper function to place default ships on the board
     function placeDefaultShips(board) {
         const shipConfigs = [
             { length: 1, count: 4 },
