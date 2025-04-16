@@ -44,13 +44,15 @@ class Gameboard {
     isValidPlacement(x, y) {
         if (x >= 0 && y >= 0 && x < this.width && y < this.height && this.grid[x][y].ship == null) {
             return true;
-        } else throw new Error('Invalid placement.');
+        } else return false;
+        //this was throw new Error before, will this cause problems? hee hee hee
     }
 
     isValidAttack(x, y) {
         if (x >= 0 && y >= 0 && x < this.width && y < this.height && this.grid[x][y].hasHit == false) {
             return true;
-        } else throw new Error('Invalid attack.')
+        } else return false;
+        //this was throw new Error before, will this cause problems? hee hee hee
     }
 
     placeShip(length, startX, startY, endX, endY) {
@@ -84,7 +86,7 @@ class Gameboard {
     }
 
     receiveAttack(x, y) {
-        console.log(this.grid[x][y].hasHit);
+        // console.log(this.grid[x][y].hasHit);
         if (this.grid[x][y].hasHit === true) {
             throw new Error("Error: Attack has already been placed at this square.");
         }
@@ -96,7 +98,7 @@ class Gameboard {
             } else throw new Error("Error: Ship has already been sunk.")
         }
         this.grid[x][y].hasHit = true;
-        console.log(this.grid[x][y].hasHit);
+        // console.log(this.grid[x][y].hasHit);
     }
 
     isAllSunk() {

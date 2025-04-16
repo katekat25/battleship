@@ -29,12 +29,25 @@ function createRenderer() {
                 gameboard.appendChild(cell);
                 cell.addEventListener("click", (e) => {
                     game.playTurn(y, x, player);
-                    drawGameboard(player);
                 });
             }
         }
     }
-    return { setGame, drawGameboard }
+
+    function setMessage(message) {
+        let messageBox = document.querySelector(".notifications");
+        messageBox.innerHTML = '';
+        messageBox.textContent = message;
+    }
+
+    function endGame(loser) {
+        // console.log("in endGame");
+       setMessage(`Game over! All of ${loser.name}'s ships have been sunk.`);
+        let gameboardContainer = document.querySelector(".gameboard-container");
+        gameboardContainer.style.pointerEvents("none");
+    }
+
+    return { setGame, drawGameboard, setMessage, endGame }
 }
 
 
