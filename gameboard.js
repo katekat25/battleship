@@ -1,10 +1,9 @@
-import { Ship } from "./ship.js";
-
 class Square {
     constructor(x, y, ship = null) {
         this.x = x;
         this.y = y;
         this.ship = ship;
+        this.hasBuffer = false;
         this.hasHit = false;
     }
 }
@@ -49,7 +48,7 @@ class Gameboard {
         for (let i = 0; i < length; i++) {
             const newX = isHorizontal ? x + i : x;
             const newY = isHorizontal ? y : y + i;
-            if (!this.#isInBounds(newX, newY) || this.grid[newX][newY].ship !== null) {
+            if (!this.#isInBounds(newX, newY) || this.grid[newX][newY].ship !== null ||this.grid[newX][newY].hasBuffer == true) {
                 return false;
             }
         }
@@ -59,6 +58,85 @@ class Gameboard {
     isValidAttack(x, y) {
         return this.#isInBounds(x, y) && this.grid[x][y].hasHit === false;
     }
+
+    #setBufferZone(startX, startY, endX, endY, isHorizontal) {
+        if (isHorizontal) {
+            for (let x = startX; x <= endX; x++) {
+                // Above
+                if (startY < this.height - 1) {
+                    this.grid[x][startY + 1].hasBuffer = true;
+                }
+                // Below
+                if (startY > 0) {
+                    this.grid[x][startY - 1].hasBuffer = true;
+                }
+            }
+    
+            // Left end
+            if (startX > 0) {
+                if (startY < this.height) {
+                    this.grid[startX - 1][startY].hasBuffer = true;
+                }
+                if (startY < this.height - 1) {
+                    this.grid[startX - 1][startY + 1].hasBuffer = true;
+                }
+                if (startY > 0) {
+                    this.grid[startX - 1][startY - 1].hasBuffer = true;
+                }
+            }
+    
+            // Right end
+            if (endX < this.width - 1) {
+                if (startY < this.height) {
+                    this.grid[endX + 1][startY].hasBuffer = true;
+                }
+                if (startY < this.height - 1) {
+                    this.grid[endX + 1][startY + 1].hasBuffer = true;
+                }
+                if (startY > 0) {
+                    this.grid[endX + 1][startY - 1].hasBuffer = true;
+                }
+            }
+        } else {
+            for (let y = startY; y <= endY; y++) {
+                // Left
+                if (startX > 0) {
+                    this.grid[startX - 1][y].hasBuffer = true;
+                }
+                // Right
+                if (startX < this.width - 1) {
+                    this.grid[startX + 1][y].hasBuffer = true;
+                }
+            }
+    
+            // Top end
+            if (startY > 0) {
+                if (startX < this.width) {
+                    this.grid[startX][startY - 1].hasBuffer = true;
+                }
+                if (startX > 0) {
+                    this.grid[startX - 1][startY - 1].hasBuffer = true;
+                }
+                if (startX < this.width - 1) {
+                    this.grid[startX + 1][startY - 1].hasBuffer = true;
+                }
+            }
+    
+            // Bottom end
+            if (endY < this.height - 1) {
+                if (startX < this.width) {
+                    this.grid[startX][endY + 1].hasBuffer = true;
+                }
+                if (startX > 0) {
+                    this.grid[startX - 1][endY + 1].hasBuffer = true;
+                }
+                if (startX < this.width - 1) {
+                    this.grid[startX + 1][endY + 1].hasBuffer = true;
+                }
+            }
+        }
+    }
+      
 
     placeShip(ship, startX, startY) {
         console.log("In placeShip.");
@@ -78,6 +156,9 @@ class Gameboard {
         coordinates.forEach(([x, y]) => {
             this.grid[x][y].ship = ship;
         })
+        console.log("Placed ship of length " + ship.length + " at start coordinates (" + startX + ", " + startY + ")");
+
+        this.#setBufferZone(startX, startY, endX, endY, ship.isHorizontal);
     }
 
     receiveAttack(x, y) {
