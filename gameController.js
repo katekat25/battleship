@@ -40,8 +40,8 @@ function newGame(player1, player2, renderer = null) {
             defender.board.receiveAttack(x, y);
 
             if (attacker instanceof CPU) {
-                console.log("CPU last attacked: " + [x, y]);
-                attacker.lastAttackCoords[0] = [x, y];
+                console.log("Setting lastAttackCords: " + x + ", " + y);
+                attacker.lastAttackCoords = [x, y];
             }
 
             this.renderer.drawGameboard(defender);
@@ -71,6 +71,7 @@ function newGame(player1, player2, renderer = null) {
                 }
                 this.renderer.toggleBoardClicking();
             } else {
+                console.log("Player making move.");
                 try {
                     if (this.processAttack(attacker, defender, x, y)) {
                         this.isBusy = false;

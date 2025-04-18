@@ -53,6 +53,9 @@ class Gameboard {
     }
 
     isValidAttack(x, y) {
+        console.log("In isValidAttack.")
+        console.log("this.#isInBounds(x,y): " + this.#isInBounds(x,y));
+        console.log("this.grid[x][y].hasHit: " + this.grid[x][y].hasHit);
         return this.#isInBounds(x, y) && !this.grid[x][y].hasHit;
     }
 
