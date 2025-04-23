@@ -117,13 +117,11 @@ class Gameboard {
     }
 
     getRandomValidAttackCoordinates() {
-        console.log("In getRandomValidAttackCoordinates.");
         let x, y;
         do {
             x = Math.floor(Math.random() * this.width);
             y = Math.floor(Math.random() * this.height);
         } while (!this.isValidAttack(x, y));
-        console.log("Returning: " + { x, y });
         return { x, y };
     }
 
