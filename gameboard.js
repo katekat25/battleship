@@ -25,17 +25,7 @@ class Gameboard {
         return x >= 0 && y >= 0 && x < this.width && y < this.height;
     }
 
-    isValidPlacement(x, y, length = 1, isHorizontal = true) {
-        for (let i = 0; i < length; i++) {
-            const newX = isHorizontal ? x + i : x;
-            const newY = isHorizontal ? y : y + i;
-            const square = this.#isInBounds(newX, newY) ? this.grid[newX][newY] : null;
-            if (!square || square.ship || square.hasBuffer) return false;
-        }
-        return true;
-    }
-
-    validateCoordinates(startX, startY, endX, endY, isHorizontal) {
+    #validatePlacement(startX, startY, endX, endY, isHorizontal) {
         const coords = [];
 
         for (let i = 0; i <= (isHorizontal ? endX - startX : endY - startY); i++) {
@@ -50,13 +40,6 @@ class Gameboard {
         }
 
         return coords;
-    }
-
-    isValidAttack(x, y) {
-        console.log("In isValidAttack.")
-        console.log("this.#isInBounds(x,y): " + this.#isInBounds(x,y));
-        console.log("this.grid[x][y].hasHit: " + this.grid[x][y].hasHit);
-        return this.#isInBounds(x, y) && !this.grid[x][y].hasHit;
     }
 
     #markBuffer(x, y) {
@@ -89,21 +72,35 @@ class Gameboard {
         adjacents.forEach(([x, y]) => this.#markBuffer(x, y));
     }
 
+    isValidAttack(x, y) {
+        return this.#isInBounds(x, y) && !this.grid[x][y].hasHit;
+    }
+
+    isValidPlacement(x, y, length = 1, isHorizontal = true) {
+        for (let i = 0; i < length; i++) {
+            const newX = isHorizontal ? x + i : x;
+            const newY = isHorizontal ? y : y + i;
+            const square = this.#isInBounds(newX, newY) ? this.grid[newX][newY] : null;
+            if (!square || square.ship || square.hasBuffer) return false;
+        }
+        return true;
+    }
 
     placeShip(ship, startX, startY) {
-        console.log("In placeShip.");
+        // console.log("In placeShip.");
         const endX = ship.isHorizontal ? startX + ship.length - 1 : startX;
         const endY = ship.isHorizontal ? startY : startY + ship.length - 1;
 
-        const coords = this.validateCoordinates(startX, startY, endX, endY, ship.isHorizontal);
+        const coords = this.#validatePlacement(startX, startY, endX, endY, ship.isHorizontal);
         coords.forEach(([x, y]) => this.grid[x][y].ship = ship);
 
         this.shipList.push(ship);
         this.#setBufferZone(startX, startY, endX, endY, ship.isHorizontal);
-        console.log("Placed ship of length " + ship.length + " at start coords (" + startX + ", " + startY + ")");
+        // console.log("Placed ship of length " + ship.length + " at start coords (" + startX + ", " + startY + ")");
     }
 
     receiveAttack(x, y) {
+        // console.log("receiving attack.");
         const square = this.grid[x][y];
         if (square.hasHit) throw new Error("Attack has already been placed at this square.");
 
@@ -119,8 +116,31 @@ class Gameboard {
         square.hasHit = true;
     }
 
+    getRandomValidAttackCoordinates() {
+        console.log("In getRandomValidAttackCoordinates.");
+        let x, y;
+        do {
+            x = Math.floor(Math.random() * this.width);
+            y = Math.floor(Math.random() * this.height);
+        } while (!this.isValidAttack(x, y));
+        console.log("Returning: " + { x, y });
+        return { x, y };
+    }
+
     isAllSunk() {
         return this.shipList.every((ship) => ship.isSunk());
+    }
+
+    clearBoard() {
+        this.shipList = [];
+        this.allSunk = false;
+        this.grid.forEach(column => {
+            column.forEach(square => {
+                square.ship = null;
+                square.hasBuffer = false;
+                square.hasHit = false;
+            })
+        })
     }
 }
 

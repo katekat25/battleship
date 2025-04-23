@@ -25,7 +25,7 @@ function newGame(player1, player2, renderer = null) {
         },
 
         processAttack(attacker, defender, x, y) {
-            console.log("Handling attack at (" + x + ", " + y + ")");
+            // console.log("Handling attack at (" + x + ", " + y + ")");
 
             if (defender === attacker) {
                 this.renderer.setMessage("Cannot attack own board.");
@@ -37,12 +37,13 @@ function newGame(player1, player2, renderer = null) {
                 throw new Error("Attack is not valid.");
             }
 
+            // console.log("About to receive attack, supposedly.")
             defender.board.receiveAttack(x, y);
 
-            if (attacker instanceof CPU) {
-                console.log("Setting lastAttackCords: " + x + ", " + y);
-                attacker.lastAttackCoords = [x, y];
-            }
+            // if (attacker instanceof CPU) {
+            //     // console.log("Setting lastAttackCoord: " + x + ", " + y);
+            //     attacker.lastAttackCoord = [x, y];
+            // }
 
             this.renderer.drawGameboard(defender);
 
@@ -54,24 +55,25 @@ function newGame(player1, player2, renderer = null) {
             return false;
         },
 
-        async playTurn(x, y, defender) {
+        async playTurn(x, y, defender, attacker = this.activePlayer) {
             if (this.isBusy) return; // Prevent overlapping turns
             this.isBusy = true;
-        
-            const attacker = this.activePlayer;
         
             if (attacker instanceof CPU) {
                 this.renderer.toggleBoardClicking();
                 this.renderer.setMessage(`Turn ${this.turnCount}: Thinking...`);
-                const coords = await attacker.cpuTurn(defender);
+                const coords = await attacker.playCPUTurn(defender);
+                console.log("Attacker last attack coord after playing CPU turn: " + attacker.lastAttackCoord);
         
-                if (this.processAttack(attacker, defender, coords[0], coords[1])) {
+                if (this.processAttack(attacker, defender, coords.x, coords.y)) {
                     this.isBusy = false;
                     return;
                 }
+
                 this.renderer.toggleBoardClicking();
+
             } else {
-                console.log("Player making move.");
+                // console.log("Player making move.");
                 try {
                     if (this.processAttack(attacker, defender, x, y)) {
                         this.isBusy = false;
@@ -89,14 +91,14 @@ function newGame(player1, player2, renderer = null) {
         
             this.isBusy = false;
         
-            if (this.activePlayer instanceof CPU) {
+            if (!defender.board.isAllSunk() && this.activePlayer instanceof CPU) {
                 await this.playTurn(null, null, this.player1);
             }
         }        
         
     };
 
-    function getValidCoordinates(board, shipLength, isHorizontal) {
+    function getValidPlacement(board, shipLength, isHorizontal) {
         let x, y;
         do {
             x = Math.floor(Math.random() * (isHorizontal ? board.width - shipLength + 1 : board.width));
@@ -116,7 +118,7 @@ function newGame(player1, player2, renderer = null) {
         shipConfigs.forEach(({ length, count }) => {
             for (let i = 0; i < count; i++) {
                 const isHorizontal = Math.random() < 0.5;
-                const [x, y] = getValidCoordinates(board, length, isHorizontal);
+                const [x, y] = getValidPlacement(board, length, isHorizontal);
                 const ship = new Ship(length, isHorizontal);
                 board.placeShip(ship, x, y);
             }
