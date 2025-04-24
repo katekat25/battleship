@@ -87,7 +87,9 @@ class Gameboard {
     }
 
     placeShip(ship, startX, startY) {
-        // console.log("In placeShip.");
+        console.log("In placeShip.");
+        console.log("Total ships so far:", this.shipList.length);
+
         const endX = ship.isHorizontal ? startX + ship.length - 1 : startX;
         const endY = ship.isHorizontal ? startY : startY + ship.length - 1;
 

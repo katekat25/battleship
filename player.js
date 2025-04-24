@@ -98,15 +98,12 @@ class CPU extends Player {
                 return { x: testX, y: testY };
             }
         }
-        //All surrounding directions failed.
         return null;
     }
 
     getNextTargetModeMove(x, y, defender) {
-        // console.log("Getting next target mode move.");
         let result = this.getAdjacentSquare(x, y, defender);
         if (result === null) {
-            // console.log("No more valid moves. Ship is sunk. Attacking randomly.")
             this.recordSunkShip();
             this.reset();
             return this.getRandomAttack(defender);
@@ -115,49 +112,30 @@ class CPU extends Player {
     }
 
     getNextPursuitModeMove(x, y, defender) {
-        // console.log("Getting next pursuit mode move at coordiates: ");
-        // console.log(x + ", " + y);
         if (!this.currentDirection) {
-            // console.log("No current direction set.");
-            const inferredDirection = this.calculateDirection(this.firstHit, this.lastAttack);
-            this.currentDirection = inferredDirection;
-            // console.log("Current direction set to: ")
-            // console.log(this.currentDirection);
+            this.currentDirection = this.calculateDirection(this.firstHit, this.lastAttack);
         }
-
-        const dir = CPU.DIRECTIONS[this.currentDirection];
-        let xInDirection = x + dir.x;
-        let yInDirection = y + dir.y;
-
-        if (defender.board.isValidAttack(xInDirection, yInDirection)) {
-            // console.log("Continuing attack in current direction.");
-            return { x: xInDirection, y: yInDirection };
-        }
-        else {
-            // console.log("Reversing direction.");
-            this.currentDirection = this.getReverseDirection(this.currentDirection);
-            if (this.currentDirection == null) {
-                // console.log("Already reversed. Ship is sunk.");
-                // console.log("Resetting and returning a random coordinate.");
-                this.recordSunkShip();
-                this.reset();
-                return this.getRandomAttack(defender);
-            }
-            // console.log("New current direction is: ")
-            // console.log(this.currentDirection);
-
-            const newDir = CPU.DIRECTIONS[this.currentDirection];
-            xInDirection = this.firstHit.x + newDir.x;
-            yInDirection = this.firstHit.y + newDir.y;
-
-
-            // console.log("Trying coordinate: " + xInDirection + ", " + yInDirection);
-            if (defender.board.isValidAttack(xInDirection, yInDirection)) {
-                return { x: xInDirection, y: yInDirection };
+    
+        const tryMove = (x, y, directionName) => {
+            const dir = CPU.DIRECTIONS[directionName];
+            const targetX = x + dir.x;
+            const targetY = y + dir.y;
+            return defender.board.isValidAttack(targetX, targetY) ? { x: targetX, y: targetY } : null;
+        };
+    
+        let move = tryMove(x, y, this.currentDirection);
+        if (move) return move;
+    
+        const reverseDir = this.getReverseDirection(this.currentDirection);
+        if (reverseDir) {
+            move = tryMove(this.firstHit.x, this.firstHit.y, reverseDir);
+            if (move) {
+                this.currentDirection = reverseDir;
+                return move;
             }
         }
-
-        // console.log("Resetting and returning a random coordinate.");
+    
+        this.recordSunkShip();
         this.reset();
         return this.getRandomAttack(defender);
     }
@@ -250,7 +228,6 @@ class CPU extends Player {
                     this.firstHit = { x: lastX, y: lastY };
 
                     //choose next move from that successful attack coordinate
-                    // console.log("Just set that last successful move as first hit. Getting a targeted move.");
                     ({ x, y } = this.getNextTargetModeMove(lastX, lastY, defender));
                 }
 
@@ -265,13 +242,11 @@ class CPU extends Player {
             else {
                 //if in pursuit mode
                 if (this.currentDirection !== null) {
-                    // console.log("Trying another direction from firstHit in PURSUIT MODE after last attack missed.");
                     ({ x, y } = this.getNextPursuitModeMove(this.firstHit.x, this.firstHit.y, defender));
                 }
 
                 //if a firstHit has been stored, try another direction from there
                 else if (this.firstHit) {
-                    // console.log("Trying another direction from firstHit after last attack missed.");
                     ({ x, y } = this.getNextTargetModeMove(this.firstHit.x, this.firstHit.y, defender));
                 }
 
@@ -290,7 +265,6 @@ class CPU extends Player {
 
         this.lastAttack = { x, y };
 
-        // console.log("Returning " + x + ", " + y)
         return { x, y };
     }
 }
