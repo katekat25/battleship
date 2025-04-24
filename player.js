@@ -105,7 +105,7 @@ class CPU extends Player {
         let xInDirection = x + this.currentDirection.x;
         let yInDirection = y + this.currentDirection.y;
 
-        if (defender.board.isValidAttack(xInDirection, yInDirection) && defender.board.grid[xInDirection][yInDirection].hasHit == false) {
+        if (defender.board.isValidAttack(xInDirection, yInDirection)) {
             console.log("Continuing attack in current direction.");
             return { x: xInDirection, y: yInDirection };
         }
@@ -130,7 +130,7 @@ class CPU extends Player {
     }
 
     async playCPUTurn(defender) {
-        //await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 1000));
         let x, y;
 
         //if there's a previous attack stored
@@ -142,17 +142,16 @@ class CPU extends Player {
             //if last attack hit
             if (this.lastAttackWasHit) {
                 this.shipSquaresHit++
-                //REMOVE THIS AFTER TESTING!!!
-                defender.board.grid[lastX][lastY].ship.hit();
 
                 //check if it sunk a ship
                 if (defender.board.grid[lastX][lastY].ship.sunk == true) {
                     console.log("Ship has been sunk — resetting target mode.");
                     this.reset();
+                    ({ x, y } = this.getRandomAttack(defender));
                 }
 
                 //if no previous firstHit set,
-                if (!this.firstHit) {
+                else if (!this.firstHit) {
                     // that successful attack is now firstHit
                     this.firstHit = { x: lastX, y: lastY };
 
@@ -196,9 +195,6 @@ class CPU extends Player {
         }
 
         this.lastAttack = { x, y };
-
-        //REMOVE WHEN DONE TESTING, ALONG WITH ANY CHANGES TO HASHIT!!!
-        defender.board.grid[this.lastAttack.x][this.lastAttack.y].hasHit = true;
 
         console.log("Returning " + x + ", " + y)
         return { x, y };

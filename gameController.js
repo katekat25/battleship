@@ -25,7 +25,7 @@ function newGame(player1, player2, renderer = null) {
         },
 
         processAttack(attacker, defender, x, y) {
-            // console.log("Handling attack at (" + x + ", " + y + ")");
+            console.log("Handling attack at (" + x + ", " + y + ")");
 
             if (defender === attacker) {
                 this.renderer.setMessage("Cannot attack own board.");
@@ -63,7 +63,9 @@ function newGame(player1, player2, renderer = null) {
                 this.renderer.toggleBoardClicking();
                 this.renderer.setMessage(`Turn ${this.turnCount}: Thinking...`);
                 const coords = await attacker.playCPUTurn(defender);
-                console.log("Attacker last attack coord after playing CPU turn: " + attacker.lastAttackCoord);
+                console.log(coords);
+                console.log(coords.x);
+                console.log(coords.y);
         
                 if (this.processAttack(attacker, defender, coords.x, coords.y)) {
                     this.isBusy = false;
