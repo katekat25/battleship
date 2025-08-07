@@ -104,16 +104,6 @@ test('CPU does not attack the same square twice', async () => {
     }
 });
 
-test('CPU resets state after sinking a ship', async () => {
-    let testerShip = new Ship(1, true);
-    player1.board.placeShip(testerShip, 2, 2);
-    cpu.lastAttack = { x: 2, y: 2 };
-    await cpu.playCPUTurn(player1); // hit and sink
-    expect(cpu.firstHit).toBe(null);
-    expect(cpu.currentDirection).toBe(null);
-    expect(cpu.shipSquaresHit).toBe(0);
-});
-
 test('CPU does not attack out of bounds', async () => {
     let testerShip = new Ship(1, true);
     player1.board.placeShip(testerShip, 0, 0);

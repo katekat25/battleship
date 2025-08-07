@@ -117,12 +117,14 @@ class Gameboard {
     }
 
     getRandomValidAttackCoordinates() {
-        let x, y;
-        do {
-            x = Math.floor(Math.random() * this.width);
-            y = Math.floor(Math.random() * this.height);
-        } while (!this.isValidAttack(x, y));
-        return { x, y };
+        const valid = [];
+        for (let x = 0; x < this.width; x++) {
+            for (let y = 0; y < this.height; y++) {
+                if (this.isValidAttack(x, y)) valid.push({ x, y });
+            }
+        }
+        if (valid.length === 0) throw new Error("No valid attack coordinates left");
+        return valid[Math.floor(Math.random() * valid.length)];
     }
 
     isAllSunk() {
