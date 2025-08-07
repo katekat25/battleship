@@ -18,6 +18,7 @@ cpu.board = new Gameboard(cpu);
 let game = newGame(player1, cpu, fakeRenderer);
 game.testMode = true;
 fakeRenderer.setGame(game);
+cpu.testMode = true;
 
 afterEach(() => {
     player1.board.clearBoard();

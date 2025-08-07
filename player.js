@@ -17,6 +17,7 @@ class CPU extends Player {
         this.firstHit = null;
         this.shipSquaresHit = 0;
         this.currentDirection = null;
+        this.testMode = false;
 
         this.totalShipKnowledge = {
             fourLengthShipsInPlay: 1,
@@ -115,17 +116,17 @@ class CPU extends Player {
         if (!this.currentDirection) {
             this.currentDirection = this.calculateDirection(this.firstHit, this.lastAttack);
         }
-    
+
         const tryMove = (x, y, directionName) => {
             const dir = CPU.DIRECTIONS[directionName];
             const targetX = x + dir.x;
             const targetY = y + dir.y;
             return defender.board.isValidAttack(targetX, targetY) ? { x: targetX, y: targetY } : null;
         };
-    
+
         let move = tryMove(x, y, this.currentDirection);
         if (move) return move;
-    
+
         const reverseDir = this.getReverseDirection(this.currentDirection);
         if (reverseDir) {
             move = tryMove(this.firstHit.x, this.firstHit.y, reverseDir);
@@ -134,7 +135,7 @@ class CPU extends Player {
                 return move;
             }
         }
-    
+
         this.recordSunkShip();
         this.reset();
         return this.getRandomAttack(defender);
@@ -171,19 +172,19 @@ class CPU extends Player {
 
     checkMaxHits() {
         const hit = this.shipSquaresHit;
-    
+
         if (hit === 4) {
             this.recordSunkShip();
             this.reset();
             return true;
         }
-    
+
         if (hit === 3 && this.totalShipKnowledge.fourLengthShipsInPlay === 0) {
             this.recordSunkShip();
             this.reset();
             return true;
         }
-    
+
         if (hit === 2 &&
             this.totalShipKnowledge.fourLengthShipsInPlay === 0 &&
             this.totalShipKnowledge.threeLengthShipsInPlay === 0) {
@@ -191,7 +192,7 @@ class CPU extends Player {
             this.reset();
             return true;
         }
-    
+
         if (hit === 1 &&
             this.totalShipKnowledge.fourLengthShipsInPlay === 0 &&
             this.totalShipKnowledge.threeLengthShipsInPlay === 0 &&
@@ -200,10 +201,12 @@ class CPU extends Player {
             this.reset();
             return true;
         }
-    }    
+    }
 
     async playCPUTurn(defender) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        if (!this.testMode) {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+        }
         let x, y;
 
         //if there's a previous attack stored
