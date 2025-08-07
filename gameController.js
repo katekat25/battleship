@@ -15,24 +15,15 @@ function newGame(player1, player2, renderer = null) {
         },
 
         initialize() {
-            console.log("In initialize()");
-            
-            console.log("Placing ships for Player 1");
             placeDefaultShips(this.player1.board);
-            console.log("Placing ships for Player 2");
             placeDefaultShips(this.player2.board);
             
-            console.log("Drawing Player 1's board");
             this.renderer.drawGameboard(this.player1);
-            console.log("Drawing Player 2's board");
             this.renderer.drawGameboard(this.player2);
-            
-            console.log("Exiting initialize");
         },
         
 
         processAttack(attacker, defender, x, y) {
-            console.log("Handling attack at (" + x + ", " + y + ")");
 
             if (defender === attacker) {
                 this.renderer.setMessage("Cannot attack own board.");
@@ -114,7 +105,6 @@ function getValidPlacement(board, shipLength, isHorizontal) {
 }
 
 function placeDefaultShips(board) {
-    console.log("Placing default ships.")
     const shipConfigs = [
         { length: 1, count: 4 },
         { length: 2, count: 3 },
@@ -133,8 +123,6 @@ function placeDefaultShips(board) {
 }
 
 function resetGame(game) {
-    console.log("Resetting game.");
-
     // reset game state
     game.turnCount = 1;
     game.activePlayer = game.player1;
@@ -144,7 +132,6 @@ function resetGame(game) {
     game.player2.board.clearBoard();
 
     // re-initialize and update ui
-    console.log("Initializing game.");
     game.initialize();
     game.renderer.setMessage("");
 

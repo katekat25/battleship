@@ -18,6 +18,8 @@
   },
   "homepage": "https://github.com/katekat25/battleship#readme",
   "devDependencies": {
+    "eslint": "^9.25.1",
+    "globals": "^16.0.0",
     "jest": "^29.7.0"
   }
 }

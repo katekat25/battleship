@@ -15,8 +15,6 @@ function initializeGame() {
     game.initialize();    
 }
 
-initializeGame();
-
 
 
 
