@@ -98,11 +98,9 @@ class Gameboard {
 
         this.shipList.push(ship);
         this.#setBufferZone(startX, startY, endX, endY, ship.isHorizontal);
-        // console.log("Placed ship of length " + ship.length + " at start coords (" + startX + ", " + startY + ")");
     }
 
     receiveAttack(x, y) {
-        // console.log("receiving attack.");
         const square = this.grid[x][y];
         if (square.hasHit) throw new Error("Attack has already been placed at this square.");
 

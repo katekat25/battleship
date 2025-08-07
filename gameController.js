@@ -1,28 +1,27 @@
-import { Ship } from "./ship.js";
 import { CPU } from "./player.js";
+import { placeDefaultShips } from "./shipUtils.js";
 import { EventEmitter } from "./eventEmitter.js";
 
 const emitter = new EventEmitter();
 
 function newGame(player1, player2) {
-    const game = {
+    let game = {
         player1,
         player2,
         activePlayer: player1,
         turnCount: 1,
         isBusy: false,
+        started: false,
 
         swapActivePlayer() {
             this.activePlayer = this.activePlayer === this.player1 ? this.player2 : this.player1;
         },
 
         initialize() {
-            placeDefaultShips(this.player1.board);
             placeDefaultShips(this.player2.board);
             emitter.emit("drawGameboard", this.player1);
             emitter.emit("drawGameboard", this.player2);
         },
-        
 
         processAttack(attacker, defender, x, y) {
             if (defender === attacker) {
@@ -47,7 +46,7 @@ function newGame(player1, player2) {
         },
 
         async playTurn(x, y, defender, attacker = this.activePlayer) {
-            if (this.isBusy) return; // Prevent overlapping turns
+            if (this.isBusy) return;
             this.isBusy = true;
 
             if (attacker instanceof CPU) {
@@ -61,7 +60,6 @@ function newGame(player1, player2) {
                 }
 
                 emitter.emit("toggleBoardClicking");
-
             } else {
                 try {
                     if (this.processAttack(attacker, defender, x, y)) {
@@ -84,61 +82,39 @@ function newGame(player1, player2) {
                 await this.playTurn(null, null, this.player1);
             }
         }
-
     };
+
+    emitter.on("cellClick", ({ x, y, player }) => {
+        if (!game.started || game.isBusy) return;
+        if (game.activePlayer instanceof CPU) return;
+        game.playTurn(x, y, player);
+    });
+    emitter.on("shufflePlayerBoard", () => {
+        if (!game.started) {
+            game.player1.board.clearBoard();
+            placeDefaultShips(game.player1.board);
+            emitter.emit("drawGameboard", game.player1);
+        }
+    });
+    emitter.on("startGame", () => {
+        if (!game.started) {
+            game.started = true;
+            emitter.emit("message", `Turn ${game.turnCount}: ${game.activePlayer.name}'s turn.`);
+        }
+    });
+    emitter.on("resetGame", () => {
+        game.turnCount = 1;
+        game.activePlayer = game.player1;
+        game.player1.board.clearBoard();
+        game.player2.board.clearBoard();
+        placeDefaultShips(game.player2.board);
+        game.started = false;
+        game.initialize();
+        emitter.emit("message", "");
+        emitter.emit("toggleBoardClicking");
+    });
 
     return game;
 }
 
-function getValidPlacement(board, shipLength, isHorizontal) {
-    let x, y;
-    do {
-        x = Math.floor(Math.random() * (isHorizontal ? board.width - shipLength + 1 : board.width));
-        y = Math.floor(Math.random() * (isHorizontal ? board.height : board.height - shipLength + 1));
-    } while (!board.isValidPlacement(x, y, shipLength, isHorizontal));
-    return [x, y];
-}
-
-function placeDefaultShips(board) {
-    const shipConfigs = [
-        { length: 1, count: 4 },
-        { length: 2, count: 3 },
-        { length: 3, count: 2 },
-        { length: 4, count: 1 }
-    ];
-
-    shipConfigs.forEach(({ length, count }) => {
-        for (let i = 0; i < count; i++) {
-            const isHorizontal = Math.random() < 0.5;
-            const [x, y] = getValidPlacement(board, length, isHorizontal);
-            const ship = new Ship(length, isHorizontal);
-            board.placeShip(ship, x, y);
-        }
-    });
-}
-
-function resetGame(game) {
-    // reset game state
-    game.turnCount = 1;
-    game.activePlayer = game.player1;
-
-    // clear boards
-    game.player1.board.clearBoard();
-    game.player2.board.clearBoard();
-
-    // re-initialize and update ui
-    game.initialize();
-    emitter.emit("message", "");
-
-    // reset ui
-    const shuffleButton = document.querySelector(".shuffle");
-    const startButton = document.querySelector(".play");
-    shuffleButton.disabled = false;
-    startButton.disabled = false;
-
-    emitter.emit("toggleBoardClicking");
-}
-
-
-
-export { newGame, placeDefaultShips, resetGame, emitter };
+export { newGame, emitter };

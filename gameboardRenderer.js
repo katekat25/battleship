@@ -1,31 +1,24 @@
 import { CPU } from "./player.js";
-import { placeDefaultShips, resetGame, emitter } from "./gameController.js";
+import { emitter } from "./gameController.js";
 
 function createRenderer() {
-    let game = null;
-
-    function initialize(g) {
-        game = g;
-        toggleBoardClicking();
+    function initialize() {
         const shuffleButton = document.querySelector(".shuffle");
         shuffleButton.disabled = false;
         shuffleButton.addEventListener("click", () => {
-            game.player1.board.clearBoard();
-            placeDefaultShips(game.player1.board);
-            drawGameboard(game.player1);
-        })
+            emitter.emit("shufflePlayerBoard");
+        });
         const startButton = document.querySelector(".play");
         startButton.disabled = false;
         startButton.addEventListener("click", () => {
-            toggleBoardClicking();
-            setMessage(`Turn ${game.turnCount}: ${game.activePlayer.name}'s turn.`);
+            emitter.emit("startGame");
             shuffleButton.disabled = true;
             startButton.disabled = true;
-        })
+        });
         const newGameButton = document.querySelector(".play-again");
         newGameButton.addEventListener("click", () => {
-            resetGame(g);
-        })
+            emitter.emit("resetGame");
+        });
 
         // Subscribe to game events
         emitter.on("drawGameboard", drawGameboard);
@@ -77,10 +70,7 @@ function createRenderer() {
         }
 
         cell.addEventListener("click", () => {
-            // prevent click triggers during initialization
-            if (typeof game?.playTurn === "function") {
-                game.playTurn(y, x, player);
-            }
+            emitter.emit("cellClick", { x: y, y: x, player });
         });
 
 
