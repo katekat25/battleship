@@ -20,7 +20,6 @@ function createRenderer() {
             emitter.emit("resetGame");
         });
 
-        // Subscribe to game events
         emitter.on("drawGameboard", drawGameboard);
         emitter.on("message", setMessage);
         emitter.on("gameOver", endGame);

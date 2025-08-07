@@ -1,8 +1,3 @@
-//pursuit mode seems to be working, but write more varied test cases.
-//additional things to add: 
-//-have it maintain knowledge of the ships in play, their lengths, what length ships its sunk, so that it wont try for a 4 if, say, a 4 has already been sunk.
-//-have it avoid attacking buffer squares around a ship it knows is sunk
-
 import { Player, CPU } from "./player.js";
 import { Gameboard } from "./gameboard.js";
 import { newGame } from "./gameController.js";
@@ -95,3 +90,46 @@ test('If CPU gets two hits in a given direction, attack a third time in that dir
     await cpu.playCPUTurn(player1);
     await cpu.playCPUTurn(player1);
 })
+
+test('CPU does not attack the same square twice', async () => {
+    let testerShip = new Ship(1, true);
+    player1.board.placeShip(testerShip, 3, 3);
+    const attacked = new Set();
+    for (let i = 0; i < 10; i++) {
+        const { x, y } = await cpu.playCPUTurn(player1);
+        const key = `${x},${y}`;
+        expect(attacked.has(key)).toBe(false);
+        attacked.add(key);
+    }
+});
+
+test('CPU resets state after sinking a ship', async () => {
+    let testerShip = new Ship(1, true);
+    player1.board.placeShip(testerShip, 2, 2);
+    cpu.lastAttack = { x: 2, y: 2 };
+    await cpu.playCPUTurn(player1); // hit and sink
+    expect(cpu.firstHit).toBe(null);
+    expect(cpu.currentDirection).toBe(null);
+    expect(cpu.shipSquaresHit).toBe(0);
+});
+
+test('CPU does not attack out of bounds', async () => {
+    let testerShip = new Ship(1, true);
+    player1.board.placeShip(testerShip, 0, 0);
+    cpu.lastAttack = { x: 0, y: 0 };
+    for (let i = 0; i < 10; i++) {
+        const { x, y } = await cpu.playCPUTurn(player1);
+        expect(x).toBeGreaterThanOrEqual(0);
+        expect(y).toBeGreaterThanOrEqual(0);
+        expect(x).toBeLessThan(player1.board.width);
+        expect(y).toBeLessThan(player1.board.height);
+    }
+});
+
+test('CPU correctly updates ship knowledge after sinking', async () => {
+    let testerShip = new Ship(1, true);
+    player1.board.placeShip(testerShip, 4, 4);
+    cpu.lastAttack = { x: 4, y: 4 };
+    await cpu.playCPUTurn(player1); // hit and sink
+    expect(cpu.totalShipKnowledge.oneLengthShipsInPlay).toBeLessThan(cpu.totalShipKnowledge.maxOneLengthShips);
+});
