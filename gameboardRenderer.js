@@ -1,5 +1,5 @@
 import { CPU } from "./player.js";
-import { placeDefaultShips, resetGame } from "./gameController.js";
+import { placeDefaultShips, resetGame, emitter } from "./gameController.js";
 
 function createRenderer() {
     let game = null;
@@ -26,6 +26,12 @@ function createRenderer() {
         newGameButton.addEventListener("click", () => {
             resetGame(g);
         })
+
+        // Subscribe to game events
+        emitter.on("drawGameboard", drawGameboard);
+        emitter.on("message", setMessage);
+        emitter.on("gameOver", endGame);
+        emitter.on("toggleBoardClicking", toggleBoardClicking);
     }
 
     function setMessage(message) {
@@ -40,7 +46,6 @@ function createRenderer() {
     function toggleBoardClicking() {
         const boardContainer = document.querySelector(".gameboard-container");
         const isDisabled = boardContainer.style.pointerEvents === "none";
-
         boardContainer.style.pointerEvents = isDisabled ? "auto" : "none";
     }
 

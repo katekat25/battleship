@@ -1,12 +1,14 @@
 import { Ship } from "./ship.js";
 import { CPU } from "./player.js";
+import { EventEmitter } from "./eventEmitter.js";
 
-function newGame(player1, player2, renderer = null) {
+const emitter = new EventEmitter();
+
+function newGame(player1, player2) {
     const game = {
         player1,
         player2,
         activePlayer: player1,
-        renderer,
         turnCount: 1,
         isBusy: false,
 
@@ -17,30 +19,27 @@ function newGame(player1, player2, renderer = null) {
         initialize() {
             placeDefaultShips(this.player1.board);
             placeDefaultShips(this.player2.board);
-            
-            this.renderer.drawGameboard(this.player1);
-            this.renderer.drawGameboard(this.player2);
+            emitter.emit("drawGameboard", this.player1);
+            emitter.emit("drawGameboard", this.player2);
         },
         
 
         processAttack(attacker, defender, x, y) {
-
             if (defender === attacker) {
-                this.renderer.setMessage("Cannot attack own board.");
+                emitter.emit("message", "Cannot attack own board.");
                 throw new Error("Cannot attack own board.");
             }
 
             if (!defender.board.isValidAttack(x, y)) {
-                this.renderer.setMessage("Attack is not valid.");
+                emitter.emit("message", "Attack is not valid.");
                 throw new Error("Attack is not valid.");
             }
 
             defender.board.receiveAttack(x, y);
-
-            this.renderer.drawGameboard(defender);
+            emitter.emit("drawGameboard", defender);
 
             if (defender.board.isAllSunk()) {
-                this.renderer.endGame(defender);
+                emitter.emit("gameOver", defender);
                 return true;
             }
 
@@ -52,22 +51,18 @@ function newGame(player1, player2, renderer = null) {
             this.isBusy = true;
 
             if (attacker instanceof CPU) {
-                this.renderer.toggleBoardClicking();
-                this.renderer.setMessage(`Turn ${this.turnCount}: Thinking...`);
+                emitter.emit("toggleBoardClicking");
+                emitter.emit("message", `Turn ${this.turnCount}: Thinking...`);
                 const coords = await attacker.playCPUTurn(defender);
-                console.log(coords);
-                console.log(coords.x);
-                console.log(coords.y);
 
                 if (this.processAttack(attacker, defender, coords.x, coords.y)) {
                     this.isBusy = false;
                     return;
                 }
 
-                this.renderer.toggleBoardClicking();
+                emitter.emit("toggleBoardClicking");
 
             } else {
-                // console.log("Player making move.");
                 try {
                     if (this.processAttack(attacker, defender, x, y)) {
                         this.isBusy = false;
@@ -81,7 +76,7 @@ function newGame(player1, player2, renderer = null) {
 
             this.turnCount++;
             this.swapActivePlayer();
-            this.renderer.setMessage(`Turn ${this.turnCount}: ${this.activePlayer.name}'s turn.`);
+            emitter.emit("message", `Turn ${this.turnCount}: ${this.activePlayer.name}'s turn.`);
 
             this.isBusy = false;
 
@@ -133,7 +128,7 @@ function resetGame(game) {
 
     // re-initialize and update ui
     game.initialize();
-    game.renderer.setMessage("");
+    emitter.emit("message", "");
 
     // reset ui
     const shuffleButton = document.querySelector(".shuffle");
@@ -141,9 +136,9 @@ function resetGame(game) {
     shuffleButton.disabled = false;
     startButton.disabled = false;
 
-    game.renderer.toggleBoardClicking();
+    emitter.emit("toggleBoardClicking");
 }
 
 
 
-export { newGame, placeDefaultShips, resetGame };
+export { newGame, placeDefaultShips, resetGame, emitter };
