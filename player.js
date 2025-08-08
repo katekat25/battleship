@@ -46,10 +46,6 @@ class CPU extends Player {
         this.currentDirection = null;
     }
 
-    getRandomAttack(defender) {
-        return defender.board.getRandomValidAttackCoordinates();
-    }
-
     getRandomDirection() {
         const availableDirections = Object.values(CPU.DIRECTIONS).filter(
             dir => !this.triedDirections.includes(dir.name)
@@ -100,6 +96,17 @@ class CPU extends Player {
         return null;
     }
 
+    //The CPU has three different attack modes: random mode, target mode, and pursuit mode.
+    //Random mode attacks the board aimlessly. Target mode tries adjacent squares to 
+    //determine the direction of the ship and terminates if all directions around the hit
+    //square are blanks. Pursuit mode continues an attack in the direction determined in
+    //target mode. It will also change directions if it reaches a blank and there are
+    //possibly more squares left according to its stored knowledge of ships in play.
+
+    getRandomAttack(defender) {
+        return defender.board.getRandomValidAttackCoordinates();
+    }
+
     getNextTargetModeMove(x, y, defender) {
         let result = this.getAdjacentSquare(x, y, defender);
         if (result === null) {
@@ -111,10 +118,12 @@ class CPU extends Player {
     }
 
     getNextPursuitModeMove(x, y, defender) {
+        //Determine direction of attack
         if (!this.currentDirection) {
             this.currentDirection = this.calculateDirection(this.firstHit, this.lastAttack);
         }
 
+        //Determine if next square in direction is valid
         const tryMove = (x, y, directionName) => {
             const dir = CPU.DIRECTIONS[directionName];
             const targetX = x + dir.x;
@@ -122,9 +131,11 @@ class CPU extends Player {
             return defender.board.isValidAttack(targetX, targetY) ? { x: targetX, y: targetY } : null;
         };
 
+        //If valid, return the calculated coordinates
         let move = tryMove(x, y, this.currentDirection);
         if (move) return move;
 
+        //
         const reverseDir = this.getReverseDirection(this.currentDirection);
         if (reverseDir) {
             move = tryMove(this.firstHit.x, this.firstHit.y, reverseDir);
@@ -168,6 +179,7 @@ class CPU extends Player {
         console.log(this.totalShipKnowledge);
     }
 
+    //Compare 
     checkMaxHits() {
         const hit = this.shipSquaresHit;
 
