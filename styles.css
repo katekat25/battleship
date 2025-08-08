@@ -1,3 +1,12 @@
+body {
+    height: 100vh;
+    width: auto;
+    overflow: hidden;
+    background-image: url("assets/ocean.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
 .gameboard-container {
     border: 1px solid blue;
     display: flex;
