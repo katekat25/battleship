@@ -1,5 +1,3 @@
-//WHERE WE LEFT OFF: Just implementing boundary conditions in search. Also, there's a known bug where under certain cases a ship will not be recorded as sunk even though it is. It happened in a corner.
-
 class Player {
     constructor(name, htmlTag, board = null) {
         this.name = name;

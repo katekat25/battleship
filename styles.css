@@ -1,7 +1,5 @@
 .gameboard-container {
     border: 1px solid blue;
-    /* height: 650px;
-    width: 1500px; */
     display: flex;
     justify-content: space-around;
 }
@@ -17,10 +15,5 @@
 
 .cell {
     box-sizing: border-box;
-    /* background-color: red; */
     border: 1px solid black;
-}
-
-.ship-container {
-    
 }
