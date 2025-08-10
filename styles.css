@@ -17,13 +17,11 @@ h1 {
 }
 
 .gameboard-container {
-    /* border: 1px solid blue; */
     display: flex;
     justify-content: space-around;
 }
 
 .gameboard {
-    /* border: 3px solid green; */
     height: 500px;
     width: 500px;
     display: flex;
@@ -34,4 +32,10 @@ h1 {
 .cell {
     box-sizing: border-box;
     border: 1px solid black;
+}
+
+.button-container {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
 }
