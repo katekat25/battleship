@@ -52,4 +52,9 @@ button {
     padding-left: 20px;
     border-radius: 10px;
     border: none;
+    cursor: pointer;
+}
+
+button:active {
+    background-color: #CC5E23;
 }
