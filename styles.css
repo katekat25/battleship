@@ -32,6 +32,15 @@ h1 {
 .cell {
     box-sizing: border-box;
     border: 1px solid black;
+    position: relative;
+}
+
+.cell-fire {
+    position: absolute;
+    top: -24px; left: -13px;
+    width: 150%; height: 150%;
+    pointer-events: none;
+    z-index: 2;
 }
 
 .button-container {

@@ -65,7 +65,11 @@ function createRenderer() {
 
         // hit
         if (square.ship && square.hasHit) {
-            cell.style.backgroundColor = "red";
+            cell.style.backgroundColor = "blue";
+            const fire = document.createElement("img");
+            fire.src = "assets/fire.gif";
+            fire.className = "cell-fire";
+            cell.appendChild(fire);
         }
 
         cell.addEventListener("click", () => {
