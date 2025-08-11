@@ -51,21 +51,25 @@ function createRenderer() {
         // CPU board with ships hidden
         if (player instanceof CPU) {
             cell.style.backgroundColor = "lightgrey";
+            cell.style.opacity = ".8";
         }
 
         // ship present and not hit
         else if (square.ship && !square.hasHit) {
             cell.style.backgroundColor = "blue";
+            cell.style.opacity = "1";
         }
 
         // miss
         if (!square.ship && square.hasHit) {
             cell.style.backgroundColor = "lightpink";
+            cell.style.opacity = "1";
         }
 
         // hit
         if (square.ship && square.hasHit) {
             cell.style.backgroundColor = "blue";
+            cell.style.opacity = "1";
             const fire = document.createElement("img");
             fire.src = "assets/fire.gif";
             fire.className = "cell-fire";
