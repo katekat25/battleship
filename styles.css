@@ -8,7 +8,7 @@
 body {
     height: 100vh;
     width: auto;
-    overflow: hidden;
+    /* overflow: hidden; */
     background-color: var(--terminal-background);
     font-family: "VT323", monospace;
 }
