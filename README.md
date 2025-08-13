@@ -4,7 +4,7 @@ A browser-based Battleship game built with JavaScript that allows users to play 
 
 ![Demo](./assets/demo.gif)
 
-🔗 [Live Demo on Github Pages]([https://katekat25.github.io/battleship/])
+🔗 [Live Demo on Github Pages](https://katekat25.github.io/battleship/)
 
 ---
 
@@ -42,4 +42,3 @@ A browser-based Battleship game built with JavaScript that allows users to play 
 - Add multiple difficulty levels for the CPU  
 - Track score history and player statistics
 - Add a play log that records all past moves
-# battleship
