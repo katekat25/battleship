@@ -62,8 +62,10 @@ function createRenderer() {
 
         // miss
         if (!square.ship && square.hasHit) {
-            cell.style.backgroundColor = "lightpink";
-            cell.style.opacity = "1";
+            const missMark = document.createElement("span");
+            missMark.textContent = "X"
+            missMark.className = "cell-miss";
+            cell.appendChild(missMark);
         }
 
         // hit

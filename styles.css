@@ -121,6 +121,14 @@ a {
     z-index: 2;
 }
 
+.cell-miss {
+    font-size: 3rem;
+    color: var(--terminal-text);
+    position: absolute;
+    top: -4px;
+    left: 6px;
+}
+
 .button-container {
     display: flex;
     justify-content: center;
