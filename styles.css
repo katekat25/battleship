@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
 :root {
     --terminal-text: #4AF626;
     --terminal-background: #003300;
@@ -7,7 +9,9 @@ body {
     height: 100vh;
     width: auto;
     overflow: hidden;
-    background-color: var(--terminal-background);}
+    background-color: var(--terminal-background);
+    font-family: "VT323", monospace;
+}
 
 /* Scanlines by https://codepen.io/ynef */
 
@@ -125,8 +129,8 @@ a {
     font-size: 3rem;
     color: var(--terminal-text);
     position: absolute;
-    top: -4px;
-    left: 6px;
+    top: -2px;
+    left: 14px;
 }
 
 .button-container {
@@ -137,6 +141,7 @@ a {
 }
 
 button {
+    font-family: inherit;
     text-transform: uppercase;
     font-size: 1.5rem;
     /* background-color: #FF7A30; */
