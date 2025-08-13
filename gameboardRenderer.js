@@ -1,8 +1,9 @@
 import { CPU } from "./player.js";
 import { emitter } from "./gameController.js";
+import { placeDefaultShips } from "./shipUtils.js";
 
 function createRenderer() {
-    function initialize() {
+    function initialize(game) {
         const shuffleButton = document.querySelector(".shuffle");
         shuffleButton.disabled = false;
         shuffleButton.addEventListener("click", () => {
@@ -17,8 +18,19 @@ function createRenderer() {
         });
         const newGameButton = document.querySelector(".play-again");
         newGameButton.addEventListener("click", () => {
-            emitter.emit("resetGame");
+            try {
+                emitter.emit("resetGame");
+            } catch (e) {
+                // Prevent crash on reset
+                console.error("Error resetting game:", e);
+            }
         });
+
+        // Place default ships for player board on initial load
+        if (game && game.player1 && game.player1.board) {
+            placeDefaultShips(game.player1.board);
+            emitter.emit("drawGameboard", game.player1);
+        }
 
         emitter.on("drawGameboard", drawGameboard);
         emitter.on("message", setMessage);

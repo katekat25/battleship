@@ -11,7 +11,9 @@ function placeDefaultShips(board) {
     shipConfigs.forEach(({ length, count }) => {
         for (let i = 0; i < count; i++) {
             let placed = false;
-            while (!placed) {
+            let attempts = 0;
+            const maxAttempts = 1000;
+            while (!placed && attempts < maxAttempts) {
                 const isHorizontal = Math.random() < 0.5;
                 const x = Math.floor(Math.random() * (isHorizontal ? board.width - length + 1 : board.width));
                 const y = Math.floor(Math.random() * (isHorizontal ? board.height : board.height - length + 1));
@@ -20,6 +22,10 @@ function placeDefaultShips(board) {
                     board.placeShip(ship, x, y);
                     placed = true;
                 }
+                attempts++;
+            }
+            if (!placed) {
+                throw new Error(`Could not place ship of length ${length} after ${maxAttempts} attempts`);
             }
         }
     });
