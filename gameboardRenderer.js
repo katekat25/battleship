@@ -65,7 +65,7 @@ function createRenderer() {
     function createCell(square, player, x, y) {
         const cell = document.createElement("div");
         cell.className = "cell";
-        const cellSize = 500 / player.board.width;
+        const cellSize = 400 / player.board.width; //500 = height of the board set in the css
         cell.style.width = `${cellSize}px`;
         cell.style.height = `${cellSize}px`;
 
