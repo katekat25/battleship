@@ -69,12 +69,7 @@ function createRenderer() {
         cell.style.width = `${cellSize}px`;
         cell.style.height = `${cellSize}px`;
 
-        // CPU board with ships hidden
-        if (!(player instanceof CPU)) {
-            cell.style.backgroundColor = "rgba(211, 211, 211, 0.4)";
-        } else {
-            cell.style.backgroundColor = "transparent";
-        }
+        cell.style.backgroundColor = "rgba(211, 211, 211, 0.4)";
 
         // ship present and not hit
         if (!(player instanceof CPU) && square.ship && !square.hasHit) {
