@@ -52,12 +52,12 @@ function createRenderer() {
         if (!(player instanceof CPU)) {
             cell.style.backgroundColor = "rgba(211, 211, 211, 0.4)";
         } else {
-            cell.style.backgroundColor = "transparent"; // or keep as before for CPU
+            cell.style.backgroundColor = "transparent";
         }
 
         // ship present and not hit
         if (!(player instanceof CPU) && square.ship && !square.hasHit) {
-            cell.style.backgroundColor = "#4AF626";
+            cell.style.backgroundColor = "#003300";
         }
 
         // miss
@@ -70,12 +70,14 @@ function createRenderer() {
 
         // hit
         if (square.ship && square.hasHit) {
-            cell.style.backgroundColor = "blue";
-            cell.style.opacity = "1";
-            const fire = document.createElement("img");
-            fire.src = "assets/fire.gif";
-            fire.className = "cell-fire";
-            cell.appendChild(fire);
+            cell.style.backgroundColor = "#4AF626";
+            // sunk
+            if (square.ship.isSunk()) {
+                const fire = document.createElement("img");
+                fire.src = "assets/fire.gif";
+                fire.className = "cell-fire";
+                cell.appendChild(fire);
+            }
         }
 
         cell.addEventListener("click", () => {
