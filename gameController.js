@@ -92,7 +92,8 @@ function newGame(player1, player2) {
             this.isBusy = false;
 
             if (!defender.board.isAllSunk() && this.activePlayer instanceof CPU) {
-                await this.playTurn(null, null, this.player1, this.sessionId);
+                const nextDefender = this.player1 instanceof CPU ? this.player2 : this.player1;
+                await this.playTurn(null, null, nextDefender, this.activePlayer, this.sessionId);
             }
         }
     };
@@ -100,7 +101,7 @@ function newGame(player1, player2) {
     emitter.on("cellClick", ({ x, y, player }) => {
         if (!game.started || game.isBusy) return;
         if (game.activePlayer instanceof CPU) return;
-        game.playTurn(x, y, player);
+        game.playTurn(x, y, player, game.activePlayer, game.sessionId);
     });
     emitter.on("shufflePlayerBoard", () => {
         if (!game.started) {
@@ -113,6 +114,10 @@ function newGame(player1, player2) {
         if (!game.started) {
             game.started = true;
             emitter.emit("message", `Turn ${game.turnCount}: ${game.activePlayer.name}'s turn.`);
+            // if CPU is first, trigger its move
+            if (game.activePlayer instanceof CPU) {
+                game.playTurn(null, null, game.player2, game.activePlayer, game.sessionId);
+            }
         }
     });
     emitter.on("resetGame", () => {
