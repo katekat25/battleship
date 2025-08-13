@@ -45,6 +45,8 @@ function createRenderer() {
         emitter.on("message", setMessage);
         emitter.on("gameOver", endGame);
         emitter.on("toggleBoardClicking", toggleBoardClicking);
+
+        emitter.emit("message", "Ready to start a new game!");
     }
 
     function setMessage(message) {
