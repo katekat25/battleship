@@ -1,3 +1,7 @@
+:root {
+    --terminal-green: #4AF626;
+}
+
 body {
     height: 100vh;
     width: auto;
@@ -19,6 +23,13 @@ h1 {
 .gameboard-container {
     display: flex;
     justify-content: space-around;
+}
+
+.notifications {
+    width: 200px;
+    height: 500px;
+    background-color: black;
+    color: var(--terminal-green);
 }
 
 .gameboard {
