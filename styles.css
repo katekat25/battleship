@@ -1,14 +1,13 @@
 :root {
-    --terminal-green: #4AF626;
+    --terminal-text: #4AF626;
+    --terminal-background: #003300;
 }
 
 body {
     height: 100vh;
     width: auto;
     overflow: hidden;
-    background-image: url("assets/ocean.jpg");
-    background-repeat: no-repeat;
-    background-size: cover;
+    background-color: var(--terminal-background);
 }
 
 h1 {
@@ -17,7 +16,11 @@ h1 {
     padding: 0;
     margin: 0;
     text-transform: uppercase;
-    color:rgb(30, 30, 30)
+    color: var(--terminal-text);
+}
+
+a {
+    color: var(--terminal-text);
 }
 
 .gameboard-container {
@@ -29,7 +32,7 @@ h1 {
     width: 200px;
     height: 500px;
     background-color: black;
-    color: var(--terminal-green);
+    color: var(--terminal-text);
 }
 
 .gameboard {
@@ -42,7 +45,7 @@ h1 {
 
 .cell {
     box-sizing: border-box;
-    border: 1px solid black;
+    border: 1px solid var(--terminal-text);
     position: relative;
 }
 
@@ -64,8 +67,8 @@ h1 {
 button {
     text-transform: uppercase;
     font-size: 1.5rem;
-    background-color: #FF7A30;
-    color: white;
+    /* background-color: #FF7A30; */
+    color: var(--terminal-text);
     padding-top: 10px;
     padding-bottom: 10px;
     padding-right: 20px;
@@ -73,8 +76,4 @@ button {
     border-radius: 10px;
     border: none;
     cursor: pointer;
-}
-
-button:active {
-    background-color: #CC5E23;
 }
