@@ -5,21 +5,30 @@ import { placeDefaultShips } from "./shipUtils.js";
 function createRenderer() {
     function initialize(game) {
         const shuffleButton = document.querySelector(".shuffle");
+        const startButton = document.querySelector(".play");
+        const newGameButton = document.querySelector(".play-again");
+        const boardContainer = document.querySelector(".gameboard-container");
+
         shuffleButton.disabled = false;
+        startButton.disabled = false;
+        if (boardContainer) boardContainer.style.pointerEvents = "auto";
+
         shuffleButton.addEventListener("click", () => {
             emitter.emit("shufflePlayerBoard");
         });
-        const startButton = document.querySelector(".play");
-        startButton.disabled = false;
         startButton.addEventListener("click", () => {
             emitter.emit("startGame");
             shuffleButton.disabled = true;
             startButton.disabled = true;
         });
-        const newGameButton = document.querySelector(".play-again");
         newGameButton.addEventListener("click", () => {
             try {
                 emitter.emit("resetGame");
+                // Re-enable buttons and pointer events after reset
+                shuffleButton.disabled = false;
+                startButton.disabled = false;
+                if (boardContainer) boardContainer.style.pointerEvents = "auto";
+                setMessage("Ready to start a new game!");
             } catch (e) {
                 // Prevent crash on reset
                 console.error("Error resetting game:", e);
@@ -110,18 +119,23 @@ function createRenderer() {
 
         gameboard.innerHTML = '';
 
-        console.log("Checking grid integrity.");
-        for (let x = player.board.width - 1; x >= 0; x--) {
-            for (let y = 0; y < player.board.height; y++) {
-                const square = player.board.grid[y]?.[x];
-                if (!square) {
-                    console.warn(`Invalid square at (${x}, ${y})`);
-                    continue;
-                }
+        try {
+            console.log("Checking grid integrity.");
+            for (let x = player.board.width - 1; x >= 0; x--) {
+                for (let y = 0; y < player.board.height; y++) {
+                    const square = player.board.grid[y]?.[x];
+                    if (!square) {
+                        console.warn(`Invalid square at (${x}, ${y})`);
+                        continue;
+                    }
 
-                const cell = createCell(square, player, x, y);
-                gameboard.appendChild(cell);
+                    const cell = createCell(square, player, x, y);
+                    gameboard.appendChild(cell);
+                }
             }
+        } catch (e) {
+            console.error("Error during grid integrity check or rendering:", e);
+            setMessage("Error rendering gameboard. See console for details.");
         }
     }
 
