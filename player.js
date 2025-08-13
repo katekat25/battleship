@@ -228,8 +228,11 @@ class CPU extends Player {
             //if last attack hit
             if (this.lastAttackWasHit) {
                 this.shipSquaresHit++;
-                if (this.checkMaxHits() === true) {
-                    // Skip any further pursuit logic since we're abandoning this attack chain
+                // check against board state if the ship has been sunk
+                const lastShip = defender.board.grid[lastX][lastY].ship;
+                if (lastShip && lastShip.isSunk()) {
+                    this.recordSunkShip();
+                    this.reset();
                     ({ x, y } = this.getRandomAttack(defender));
                     this.lastAttack = { x, y };
                     return { x, y };
