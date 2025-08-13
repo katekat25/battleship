@@ -116,8 +116,8 @@ a {
 
 .cell-fire {
     position: absolute;
-    top: -24px;
-    left: -13px;
+    top: -18px;
+    left: -10px;
     width: 150%;
     height: 150%;
     pointer-events: none;
@@ -128,8 +128,8 @@ a {
     font-size: 3rem;
     color: var(--terminal-text);
     position: absolute;
-    top: -2px;
-    left: 14px;
+    top: -7px;
+    left: 9px;
 }
 
 .button-container {
