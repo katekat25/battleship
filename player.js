@@ -15,13 +15,11 @@ class CPU extends Player {
         this.firstHit = null;
         this.shipSquaresHit = 0;
         this.currentDirection = null;
-
         this.totalShipKnowledge = {
             fourLengthShipsInPlay: 1,
             threeLengthShipsInPlay: 2,
             twoLengthShipsInPlay: 3,
             oneLengthShipsInPlay: 4,
-
             maxFourLengthShips: 1,
             maxThreeLengthShips: 2,
             maxTwoLengthShips: 3,
@@ -49,11 +47,9 @@ class CPU extends Player {
         const availableDirections = Object.values(CPU.DIRECTIONS).filter(
             dir => !this.triedDirections.includes(dir.name)
         );
-
         if (availableDirections.length === 0) {
             return null;
         }
-
         const randomDirection = availableDirections[Math.floor(Math.random() * availableDirections.length)];
         this.triedDirections.push(randomDirection.name);
         return randomDirection;
@@ -117,24 +113,17 @@ class CPU extends Player {
     }
 
     getNextPursuitModeMove(x, y, defender) {
-        //Determine direction of attack
         if (!this.currentDirection) {
             this.currentDirection = this.calculateDirection(this.firstHit, this.lastAttack);
         }
-
-        //Determine if next square in direction is valid
         const tryMove = (x, y, directionName) => {
             const dir = CPU.DIRECTIONS[directionName];
             const targetX = x + dir.x;
             const targetY = y + dir.y;
             return defender.board.isValidAttack(targetX, targetY) ? { x: targetX, y: targetY } : null;
         };
-
-        //If valid, return the calculated coordinates
         let move = tryMove(x, y, this.currentDirection);
         if (move) return move;
-
-        //
         const reverseDir = this.getReverseDirection(this.currentDirection);
         if (reverseDir) {
             move = tryMove(this.firstHit.x, this.firstHit.y, reverseDir);
@@ -143,7 +132,6 @@ class CPU extends Player {
                 return move;
             }
         }
-
         this.recordSunkShip();
         this.reset();
         return this.getRandomAttack(defender);
@@ -178,22 +166,18 @@ class CPU extends Player {
         console.log(this.totalShipKnowledge);
     }
 
-    //Compare 
     checkMaxHits() {
         const hit = this.shipSquaresHit;
-
         if (hit === 4) {
             this.recordSunkShip();
             this.reset();
             return true;
         }
-
         if (hit === 3 && this.totalShipKnowledge.fourLengthShipsInPlay === 0) {
             this.recordSunkShip();
             this.reset();
             return true;
         }
-
         if (hit === 2 &&
             this.totalShipKnowledge.fourLengthShipsInPlay === 0 &&
             this.totalShipKnowledge.threeLengthShipsInPlay === 0) {
@@ -201,7 +185,6 @@ class CPU extends Player {
             this.reset();
             return true;
         }
-
         if (hit === 1 &&
             this.totalShipKnowledge.fourLengthShipsInPlay === 0 &&
             this.totalShipKnowledge.threeLengthShipsInPlay === 0 &&
@@ -214,17 +197,12 @@ class CPU extends Player {
 
    playCPUTurn(defender) {
         let x, y;
-
-        //if there's a previous attack stored
         if (this.lastAttack) {
             const lastX = this.lastAttack.x;
             const lastY = this.lastAttack.y;
-
             this.lastAttackWasHit = this.checkHit(lastX, lastY, defender);
-            //if last attack hit
             if (this.lastAttackWasHit) {
                 this.shipSquaresHit++;
-                // check against board state if the ship has been sunk
                 const lastShip = defender.board.grid[lastX][lastY].ship;
                 if (lastShip && lastShip.isSunk()) {
                     this.recordSunkShip();
@@ -233,52 +211,32 @@ class CPU extends Player {
                     this.lastAttack = { x, y };
                     return { x, y };
                 }
-
-                //if no previous firstHit set,
                 if (!this.firstHit) {
-                    // that successful attack is now firstHit
                     this.firstHit = { x: lastX, y: lastY };
-
-                    //choose next move from that successful attack coordinate
                     ({ x, y } = this.getNextTargetModeMove(lastX, lastY, defender));
                 }
-
-                //if it has been set and there's more than two hits
                 if (this.shipSquaresHit >= 2) {
                     ({ x, y } = this.getNextPursuitModeMove(lastX, lastY, defender));
                 }
-
             }
-
-            //if last hit was a miss
             else {
-                //if in pursuit mode
                 if (this.currentDirection !== null) {
                     ({ x, y } = this.getNextPursuitModeMove(this.firstHit.x, this.firstHit.y, defender));
                 }
-
-                //if a firstHit has been stored, try another direction from there
                 else if (this.firstHit) {
                     ({ x, y } = this.getNextTargetModeMove(this.firstHit.x, this.firstHit.y, defender));
                 }
-
-                //if no firstHit has been stored, keep attacking randomly
                 else {
                     ({ x, y } = this.getRandomAttack(defender));
                 }
-
             }
         }
-
-        //if no previous attack is stored
         else {
             ({ x, y } = this.getRandomAttack(defender));
         }
-
         this.lastAttack = { x, y };
-
         return { x, y };
     }
 }
 
-export { Player, CPU }
+export { Player, CPU };

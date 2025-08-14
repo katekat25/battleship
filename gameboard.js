@@ -29,18 +29,14 @@ class Gameboard {
 
     #validatePlacement(startX, startY, endX, endY, isHorizontal) {
         const coords = [];
-
         for (let i = 0; i <= (isHorizontal ? endX - startX : endY - startY); i++) {
             const x = isHorizontal ? startX + i : startX;
             const y = isHorizontal ? startY : startY + i;
-
             if (!this.isValidPlacement(x, y)) {
                 throw new Error(`Invalid placement at (${x}, ${y})`);
             }
-
             coords.push([x, y]);
         }
-
         return coords;
     }
 
@@ -52,7 +48,6 @@ class Gameboard {
 
     #setBufferZone(startX, startY, endX, endY, isHorizontal) {
         const adjacents = [];
-
         if (isHorizontal) {
             for (let x = startX; x <= endX; x++) {
                 adjacents.push([x, startY - 1], [x, startY + 1]);
@@ -70,7 +65,6 @@ class Gameboard {
                 [startX, endY + 1], [startX - 1, endY + 1], [startX + 1, endY + 1]
             );
         }
-
         adjacents.forEach(([x, y]) => this.#markBuffer(x, y));
     }
 
@@ -91,10 +85,8 @@ class Gameboard {
     placeShip(ship, startX, startY) {
         const endX = ship.isHorizontal ? startX + ship.length - 1 : startX;
         const endY = ship.isHorizontal ? startY : startY + ship.length - 1;
-
         const coords = this.#validatePlacement(startX, startY, endX, endY, ship.isHorizontal);
         coords.forEach(([x, y]) => this.grid[x][y].ship = ship);
-
         this.shipList.push(ship);
         this.#setBufferZone(startX, startY, endX, endY, ship.isHorizontal);
     }
@@ -106,7 +98,6 @@ class Gameboard {
         let result = { hit: false, sunk: false, ship: null };
 
         if (square.ship) {
-            // if not already sunk, register hit
             if (!square.ship.isSunk()) {
                 square.ship.hit();
                 result.hit = true;
@@ -148,4 +139,4 @@ class Gameboard {
     }
 }
 
-export { Gameboard }
+export { Gameboard };

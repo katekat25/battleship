@@ -29,18 +29,15 @@ function createRenderer() {
         newGameButton.addEventListener("click", () => {
             try {
                 emitter.emit("resetGame");
-                // Re-enable buttons and pointer events after reset
                 shuffleButton.disabled = false;
                 startButton.disabled = false;
                 if (boardContainer) boardContainer.style.pointerEvents = "auto";
                 setMessage("Ready to start a new game!");
             } catch (e) {
-                // Prevent crash on reset
                 console.error("Error resetting game:", e);
             }
         });
 
-        // Place default ships for player board on initial load
         if (game && game.player1 && game.player1.board) {
             placeDefaultShips(game.player1.board);
             emitter.emit("drawGameboard", game.player1);
@@ -91,7 +88,7 @@ function createRenderer() {
     function createCell(square, player, x, y) {
         const cell = document.createElement("div");
         cell.className = "cell";
-        const cellSize = 400 / player.board.width; //400 = height of the board set in the css
+        const cellSize = 400 / player.board.width; //400 = whatever height and width the board is in px
         cell.style.width = `${cellSize}px`;
         cell.style.height = `${cellSize}px`;
 
