@@ -89,9 +89,6 @@ class Gameboard {
     }
 
     placeShip(ship, startX, startY) {
-        console.log("In placeShip.");
-        console.log("Total ships so far:", this.shipList.length);
-
         const endX = ship.isHorizontal ? startX + ship.length - 1 : startX;
         const endY = ship.isHorizontal ? startY : startY + ship.length - 1;
 
@@ -109,7 +106,7 @@ class Gameboard {
         let result = { hit: false, sunk: false, ship: null };
 
         if (square.ship) {
-            // If not already sunk, register hit
+            // if not already sunk, register hit
             if (!square.ship.isSunk()) {
                 square.ship.hit();
                 result.hit = true;

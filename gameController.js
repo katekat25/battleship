@@ -13,6 +13,7 @@ function newGame(player1, player2) {
         isBusy: false,
         started: false,
         sessionId: 0,
+        pendingCPUMove: null,
 
         swapActivePlayer() {
             this.activePlayer = this.activePlayer === this.player1 ? this.player2 : this.player1;
@@ -74,7 +75,14 @@ function newGame(player1, player2) {
             if (!(attacker instanceof CPU)) {
                 emitter.emit("message", "Attacking at " + this.getReadableCoords(x, y));
             }
-            if (this.isBusy) return;
+            if (this.isBusy && !(attacker instanceof CPU && this.pendingCPUMove)) {
+                // Only queue a CPU move if not already queued
+                if (attacker instanceof CPU && !this.pendingCPUMove) {
+                    // CPU move queued for when message queue is idle
+                    this.pendingCPUMove = { x, y, defender, attacker, sessionAtStart };
+                }
+                return;
+            }
             this.isBusy = true;
 
             // abort if session has changed (e.g. reset during CPU turn)
@@ -84,29 +92,34 @@ function newGame(player1, player2) {
             }
 
             if (attacker instanceof CPU) {
-                emitter.emit("toggleBoardClicking");
-                emitter.emit("message", `Thinking...`);
-                const coords = await attacker.playCPUTurn(defender);
+                // Only actually make a move if x and y are null (i.e., not a recursive queue)
+                if (x == null && y == null) {
+                    emitter.emit("toggleBoardClicking");
+                    emitter.emit("message", `Thinking...`);
+                    const coords = await attacker.playCPUTurn(defender);
 
-                console.log(coords);
-                emitter.emit("message", "Attacking at " + this.getReadableCoords(coords.x, coords.y));
+                    emitter.emit("message", "Attacking at " + this.getReadableCoords(coords.x, coords.y));
 
-                // abort if session has changed after async
-                if (sessionAtStart !== this.sessionId) {
-                    this.isBusy = false;
+                    // abort if session has changed after async
+                    if (sessionAtStart !== this.sessionId) {
+                        this.isBusy = false;
+                        return;
+                    }
+
+                    if (this.processAttack(attacker, defender, coords.x, coords.y)) {
+                        // isBusy will be set to false by messageQueueIdle
+                        return;
+                    }
+
+                    emitter.emit("toggleBoardClicking");
+                } else {
+                    // If x/y are not null, this is a recursive queue, do not re-queue
                     return;
                 }
-
-                if (this.processAttack(attacker, defender, coords.x, coords.y)) {
-                    this.isBusy = false;
-                    return;
-                }
-
-                emitter.emit("toggleBoardClicking");
             } else {
                 try {
                     if (this.processAttack(attacker, defender, x, y)) {
-                        this.isBusy = false;
+                        // isBusy will be set to false by messageQueueIdle
                         return;
                     }
                 } catch (err) {
@@ -119,11 +132,14 @@ function newGame(player1, player2) {
             this.swapActivePlayer();
             emitter.emit("message", `Turn ${this.turnCount}: ${this.activePlayer.name}'s turn.`);
 
-            this.isBusy = false;
+            // isBusy will be set to false by messageQueueIdle
 
+            // Only queue a CPU move if not already queued and game is not over
             if (!defender.board.isAllSunk() && this.activePlayer instanceof CPU) {
                 const nextDefender = this.player1 instanceof CPU ? this.player2 : this.player1;
-                await this.playTurn(null, null, nextDefender, this.activePlayer, this.sessionId);
+                if (!this.pendingCPUMove) {
+                    this.pendingCPUMove = { x: null, y: null, defender: nextDefender, attacker: this.activePlayer, sessionAtStart: this.sessionId };
+                }
             }
         }
     };
@@ -163,6 +179,18 @@ function newGame(player1, player2) {
         game.started = false;
         emitter.emit("message", "");
         emitter.emit("toggleBoardClicking");
+    });
+    emitter.on("messageQueueIdle", () => {
+        // When the message queue is idle, process any pending CPU move, otherwise set isBusy to false
+        if (game.pendingCPUMove) {
+            // Fix: set isBusy = false before processing the pending CPU move
+            game.isBusy = false;
+            const move = game.pendingCPUMove;
+            game.pendingCPUMove = null;
+            game.playTurn(move.x, move.y, move.defender, move.attacker, move.sessionAtStart);
+        } else {
+            game.isBusy = false;
+        }
     });
 
     return game;

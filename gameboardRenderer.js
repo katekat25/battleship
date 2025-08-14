@@ -6,6 +6,7 @@ function createRenderer() {
     let messageLog = [];
     let messageQueue = [];
     let processingQueue = false;
+    let testMode = false;
 
     function initialize(game) {
         const shuffleButton = document.querySelector(".shuffle");
@@ -58,6 +59,10 @@ function createRenderer() {
         if (!processingQueue) processQueue();
     }
 
+    function setTestMode(val) {
+        testMode = val;
+    }
+
     async function processQueue() {
         processingQueue = true;
         while (messageQueue.length > 0) {
@@ -65,9 +70,12 @@ function createRenderer() {
             messageLog.push(message);
             const messageBox = document.querySelector(".notifications");
             messageBox.innerHTML = messageLog.join("<br>");
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            if (!testMode) {
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
         }
         processingQueue = false;
+        emitter.emit("messageQueueIdle");
     }
 
     function endGame(loser) {
@@ -152,7 +160,7 @@ function createRenderer() {
         }
     }
 
-    return { initialize, drawGameboard, setMessage, endGame, toggleBoardClicking }
+    return { initialize, drawGameboard, setMessage, endGame, toggleBoardClicking, setTestMode }
 }
 
 

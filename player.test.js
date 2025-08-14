@@ -2,6 +2,7 @@ import { Player, CPU } from "./player.js";
 import { Gameboard } from "./gameboard.js";
 import { newGame } from "./gameController.js";
 import { Ship } from "./ship.js";
+import { createRenderer } from "./gameboardRenderer.js";
 
 const fakeRenderer = {
     setGame: () => { },
@@ -19,6 +20,9 @@ let game = newGame(player1, cpu, fakeRenderer);
 game.testMode = true;
 fakeRenderer.setGame(game);
 cpu.testMode = true;
+
+const renderer = createRenderer();
+renderer.setTestMode(true);
 
 afterEach(() => {
     player1.board.clearBoard();
