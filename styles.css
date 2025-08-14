@@ -94,6 +94,9 @@ a {
     color: var(--terminal-text);
     border: 1px solid var(--terminal-text);
     margin-top: 1rem;
+    display: flex;
+    flex-direction: column-reverse;
+    overflow-y: scroll;
 }
 
 .columns {
