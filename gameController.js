@@ -12,7 +12,7 @@ function newGame(player1, player2) {
         turnCount: 1,
         isBusy: false,
         started: false,
-        sessionId: 0, 
+        sessionId: 0,
 
         swapActivePlayer() {
             this.activePlayer = this.activePlayer === this.player1 ? this.player2 : this.player1;
@@ -46,7 +46,26 @@ function newGame(player1, player2) {
             return false;
         },
 
+        getReadableCoords(x, y) {
+            const yToAlphabet = {
+                0: "J",
+                1: "I",
+                2: "H",
+                3: "G",
+                4: "F",
+                5: "E",
+                6: "D",
+                7: "C",
+                8: "B",
+                9: "A"
+            };
+            return yToAlphabet[y] + (x + 1);
+        },
+
         async playTurn(x, y, defender, attacker = this.activePlayer, sessionAtStart = this.sessionId) {
+            if (!(attacker instanceof CPU)) {
+                emitter.emit("message", "Attacking at " + this.getReadableCoords(x, y));
+            }
             if (this.isBusy) return;
             this.isBusy = true;
 
@@ -58,8 +77,11 @@ function newGame(player1, player2) {
 
             if (attacker instanceof CPU) {
                 emitter.emit("toggleBoardClicking");
-                emitter.emit("message", `Turn ${this.turnCount}: Thinking...`);
+                emitter.emit("message", `Thinking...`);
                 const coords = await attacker.playCPUTurn(defender);
+
+                console.log(coords);
+                emitter.emit("message", "Attacking at " + this.getReadableCoords(coords.x, coords.y));
 
                 // abort if session has changed after async
                 if (sessionAtStart !== this.sessionId) {
