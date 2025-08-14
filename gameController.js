@@ -5,6 +5,12 @@ import { EventEmitter } from "./eventEmitter.js";
 const emitter = new EventEmitter();
 
 function newGame(player1, player2) {
+    function queueNextCPUMove(game) {
+        const nextDefender = game.player1 instanceof CPU ? game.player2 : game.player1;
+        if (!game.pendingCPUMove) {
+            game.pendingCPUMove = { x: null, y: null, defender: nextDefender, attacker: game.activePlayer, sessionAtStart: game.sessionId };
+        }
+    }
     let game = {
         player1,
         player2,
@@ -91,21 +97,11 @@ function newGame(player1, player2) {
             if (attacker instanceof CPU) {
                 if (x == null && y == null) {
                     emitter.emit("toggleBoardClicking");
-                    emitter.emit("message", `Thinking...`);
-                    const coords = await attacker.playCPUTurn(defender);
-
-                    emitter.emit("message", "Attacking at " + this.getReadableCoords(coords.x, coords.y));
-
-                    if (sessionAtStart !== this.sessionId) {
-                        this.isBusy = false;
-                        return;
-                    }
-
-                    if (this.processAttack(attacker, defender, coords.x, coords.y)) {
-                        return;
-                    }
-
-                    emitter.emit("toggleBoardClicking");
+                    emitter.emit("message", `Turn ${this.turnCount}: ${attacker.name}'s turn.`);
+                    emitter.emit("message", "__CPU_PAUSE__");
+                    emitter.emit("message", "Thinking...");
+                    emitter.emit("message", "__CPU_DRAW__");
+                    return;
                 } else {
                     return;
                 }
@@ -122,8 +118,10 @@ function newGame(player1, player2) {
 
             this.turnCount++;
             this.swapActivePlayer();
-            emitter.emit("message", `Turn ${this.turnCount}: ${this.activePlayer.name}'s turn.`);
-
+            if (!(this.activePlayer instanceof CPU)) {
+                emitter.emit("message", `Turn ${this.turnCount}: ${this.activePlayer.name}'s turn.`, { instant: true });
+                emitter.emit("message", "__ENABLE_PLAYER_CLICK__");
+            }
             if (!defender.board.isAllSunk() && this.activePlayer instanceof CPU) {
                 const nextDefender = this.player1 instanceof CPU ? this.player2 : this.player1;
                 if (!this.pendingCPUMove) {
@@ -177,6 +175,27 @@ function newGame(player1, player2) {
         } else {
             game.isBusy = false;
         }
+    });
+    emitter.on("cpuDrawAfterThinking", async () => {
+        const cpu = game.activePlayer;
+        const defender = game.player1 instanceof CPU ? game.player2 : game.player1;
+        const coords = await cpu.playCPUTurn(defender);
+        emitter.emit("message", "Attacking at " + game.getReadableCoords(coords.x, coords.y));
+        if (game.processAttack(cpu, defender, coords.x, coords.y)) {
+            return;
+        }
+        emitter.emit("toggleBoardClicking");
+        game.turnCount++;
+        game.swapActivePlayer();
+        if (!(game.activePlayer instanceof CPU)) {
+            emitter.emit("message", `Turn ${game.turnCount}: ${game.activePlayer.name}'s turn.`, { instant: true });
+            emitter.emit("message", "__ENABLE_PLAYER_CLICK__");
+        } else {
+            queueNextCPUMove(game);
+        }
+    });
+    emitter.on("enablePlayerClick", () => {
+        emitter.emit("toggleBoardClicking");
     });
 
     return game;

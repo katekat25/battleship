@@ -51,8 +51,8 @@ function createRenderer() {
         setMessage("Ready to start a new game!")
     }
 
-    function setMessage(message) {
-        messageQueue.push(message);
+    function setMessage(message, options = {}) {
+        messageQueue.push({ message, instant: options.instant });
         if (!processingQueue) processQueue();
     }
 
@@ -60,15 +60,32 @@ function createRenderer() {
         testMode = val;
     }
 
+    const CONTROL_MESSAGES = new Set(["__CPU_DRAW__", "__ENABLE_PLAYER_CLICK__", "__CPU_PAUSE__"]);
+
+    function getMessageDelay(message, instant, testMode) {
+        if (instant || testMode) return 0;
+        if (message === "__CPU_PAUSE__") return 250;
+        if (CONTROL_MESSAGES.has(message)) return 0;
+        return 1000;
+    }
+
     async function processQueue() {
         processingQueue = true;
         while (messageQueue.length > 0) {
-            const message = messageQueue.shift();
-            messageLog.push(message);
-            const messageBox = document.querySelector(".notifications");
-            messageBox.innerHTML = messageLog.join("<br>");
-            if (!testMode) {
-                await new Promise(resolve => setTimeout(resolve, 1000));
+            const { message, instant } = messageQueue.shift();
+            if (!CONTROL_MESSAGES.has(message)) {
+                messageLog.push(message);
+                const messageBox = document.querySelector(".notifications");
+                messageBox.innerHTML = messageLog.join("<br>");
+            }
+            const delay = getMessageDelay(message, instant, testMode);
+            if (delay > 0) await new Promise(resolve => setTimeout(resolve, delay));
+            if (message === "__CPU_DRAW__") emitter.emit("cpuDrawAfterThinking");
+            if (message === "__ENABLE_PLAYER_CLICK__") {
+                const boardContainer = document.querySelector(".container");
+                if (boardContainer && boardContainer.style.pointerEvents !== "auto") {
+                    boardContainer.style.pointerEvents = "auto";
+                }
             }
         }
         processingQueue = false;
