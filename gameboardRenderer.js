@@ -128,22 +128,18 @@ function createRenderer() {
     }
 
     function drawGameboard(player) {
-        console.log("Drawing gameboard.");
         const gameboard = document.querySelector(`.${player.htmlTag}`);
         if (!gameboard) {
-            console.error(`No gameboard found for selector .${player.htmlTag}`);
             return;
         }
 
         gameboard.innerHTML = '';
 
         try {
-            console.log("Checking grid integrity.");
             for (let x = player.board.width - 1; x >= 0; x--) {
                 for (let y = 0; y < player.board.height; y++) {
                     const square = player.board.grid[y]?.[x];
                     if (!square) {
-                        console.warn(`Invalid square at (${x}, ${y})`);
                         continue;
                     }
 
@@ -152,7 +148,6 @@ function createRenderer() {
                 }
             }
         } catch (e) {
-            console.error("Error during grid integrity check or rendering:", e);
             setMessage("Error rendering gameboard. See console for details.");
         }
     }

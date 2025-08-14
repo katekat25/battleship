@@ -160,10 +160,8 @@ class CPU extends Player {
                 }
                 break;
             default:
-                console.warn(`Unexpected ship length hit: ${this.shipSquaresHit}`);
                 break;
         }
-        console.log(this.totalShipKnowledge);
     }
 
     checkMaxHits() {
