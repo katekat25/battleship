@@ -1,11 +1,11 @@
-//Timeout is not workign for all messages
-
 import { CPU } from "./player.js";
 import { emitter } from "./gameController.js";
 import { placeDefaultShips } from "./shipUtils.js";
 
 function createRenderer() {
     let messageLog = [];
+    let messageQueue = [];
+    let processingQueue = false;
 
     function initialize(game) {
         const shuffleButton = document.querySelector(".shuffle");
@@ -53,11 +53,21 @@ function createRenderer() {
         setMessage("Ready to start a new game!")
     }
 
-    async function setMessage(message) {
-        await new Promise(resolve => setTimeout(resolve, 250));
-        messageLog.push(message);
-        const messageBox = document.querySelector(".notifications");
-        messageBox.innerHTML = messageLog.join("<br>");
+    function setMessage(message) {
+        messageQueue.push(message);
+        if (!processingQueue) processQueue();
+    }
+
+    async function processQueue() {
+        processingQueue = true;
+        while (messageQueue.length > 0) {
+            const message = messageQueue.shift();
+            messageLog.push(message);
+            const messageBox = document.querySelector(".notifications");
+            messageBox.innerHTML = messageLog.join("<br>");
+            await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+        processingQueue = false;
     }
 
     function endGame(loser) {
