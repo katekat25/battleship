@@ -1,3 +1,5 @@
+import { emitter } from "./gameController.js";
+
 class Square {
     constructor(x, y, ship = null) {
         this.x = x;
@@ -106,13 +108,14 @@ class Gameboard {
 
         //is there a ship there?
         if (square.ship) {
+            emitter.emit("message", "Hit!");
             //is that ship already sunken?
             if (!square.ship.isSunk()) {
                 square.ship.hit();
             } else {
                 throw new Error("Ship has already been sunk.")
             }
-        }
+        } else emitter.emit("message", "Miss.");
         square.hasHit = true;
     }
 
