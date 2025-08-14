@@ -3,11 +3,13 @@ import { emitter } from "./gameController.js";
 import { placeDefaultShips } from "./shipUtils.js";
 
 function createRenderer() {
+    let messageLog = [];
+
     function initialize(game) {
         const shuffleButton = document.querySelector(".shuffle");
         const startButton = document.querySelector(".play");
         const newGameButton = document.querySelector(".play-again");
-        const boardContainer = document.querySelector(".gameboard-container");
+        const boardContainer = document.querySelector(".container");
 
         shuffleButton.disabled = false;
         startButton.disabled = false;
@@ -50,8 +52,9 @@ function createRenderer() {
     }
 
     function setMessage(message) {
+        messageLog.push(message);
         const messageBox = document.querySelector(".notifications");
-        messageBox.textContent = message;
+        messageBox.innerHTML = messageLog.join("<br>");
     }
 
     function endGame(loser) {
@@ -59,7 +62,7 @@ function createRenderer() {
     }
 
     function toggleBoardClicking() {
-        const boardContainer = document.querySelector(".gameboard-container");
+        const boardContainer = document.querySelector(".container");
         const isDisabled = boardContainer.style.pointerEvents === "none";
         boardContainer.style.pointerEvents = isDisabled ? "auto" : "none";
     }
