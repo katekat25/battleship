@@ -62,16 +62,6 @@ body {
     }
 }
 
-div.scanlines {
-    position: absolute;
-}
-
-div .jpg {
-    width: 100vw;
-    height: 100vh;
-    border: none;
-}
-
 /*  */
 
 h1 {
