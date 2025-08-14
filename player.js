@@ -15,7 +15,6 @@ class CPU extends Player {
         this.firstHit = null;
         this.shipSquaresHit = 0;
         this.currentDirection = null;
-        this.testMode = false;
 
         this.totalShipKnowledge = {
             fourLengthShipsInPlay: 1,
@@ -213,10 +212,7 @@ class CPU extends Player {
         }
     }
 
-    async playCPUTurn(defender) {
-        if (!this.testMode) {
-            await new Promise(resolve => setTimeout(resolve, 1000));
-        }
+   playCPUTurn(defender) {
         let x, y;
 
         //if there's a previous attack stored
