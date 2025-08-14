@@ -1,3 +1,5 @@
+//Timeout is not workign for all messages
+
 import { CPU } from "./player.js";
 import { emitter } from "./gameController.js";
 import { placeDefaultShips } from "./shipUtils.js";
@@ -51,7 +53,8 @@ function createRenderer() {
         setMessage("Ready to start a new game!")
     }
 
-    function setMessage(message) {
+    async function setMessage(message) {
+        await new Promise(resolve => setTimeout(resolve, 250));
         messageLog.push(message);
         const messageBox = document.querySelector(".notifications");
         messageBox.innerHTML = messageLog.join("<br>");

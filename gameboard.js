@@ -106,17 +106,21 @@ class Gameboard {
         const square = this.grid[x][y];
         if (square.hasHit) throw new Error("Attack has already been placed at this square.");
 
-        //is there a ship there?
+        let result = { hit: false, sunk: false, ship: null };
+
         if (square.ship) {
-            emitter.emit("message", "Hit!");
-            //is that ship already sunken?
+            // If not already sunk, register hit
             if (!square.ship.isSunk()) {
                 square.ship.hit();
+                result.hit = true;
+                result.ship = square.ship;
+                result.sunk = square.ship.isSunk();
             } else {
                 throw new Error("Ship has already been sunk.")
             }
-        } else emitter.emit("message", "Miss.");
+        }
         square.hasHit = true;
+        return result;
     }
 
     getRandomValidAttackCoordinates() {

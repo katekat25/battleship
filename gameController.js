@@ -35,8 +35,16 @@ function newGame(player1, player2) {
                 throw new Error("Attack is not valid.");
             }
 
-            defender.board.receiveAttack(x, y);
+            const result = defender.board.receiveAttack(x, y);
             emitter.emit("drawGameboard", defender);
+
+            if (result.hit && result.sunk) {
+                emitter.emit("message", "Sunk a ship!");
+            } else if (result.hit) {
+                emitter.emit("message", "Hit!");
+            } else {
+                emitter.emit("message", "Miss.");
+            }
 
             if (defender.board.isAllSunk()) {
                 emitter.emit("gameOver", defender);
